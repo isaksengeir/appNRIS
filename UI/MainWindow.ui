@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>832</width>
-    <height>678</height>
+    <width>770</width>
+    <height>594</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
-        <string>Tab 1</string>
+        <string>Roster</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -30,37 +30,15 @@
           <property name="sizeAdjustPolicy">
            <enum>QAbstractScrollArea::AdjustIgnored</enum>
           </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::NoEditTriggers</set>
+          </property>
           <attribute name="horizontalHeaderHighlightSections">
            <bool>true</bool>
           </attribute>
-          <row>
-           <property name="text">
-            <string>42</string>
-           </property>
-          </row>
           <column>
            <property name="text">
-            <string>NTNU</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Sigma2</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>UiB</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>UiO</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>UiT</string>
+            <string>New Column</string>
            </property>
           </column>
          </widget>
@@ -69,7 +47,12 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>Tab 2</string>
+        <string>Staff</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Calendar</string>
        </attribute>
       </widget>
      </widget>
@@ -81,7 +64,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>832</width>
+     <width>770</width>
      <height>24</height>
     </rect>
    </property>

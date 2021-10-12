@@ -11,11 +11,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setWindowTitle("appNRIS")
 
         # Make table widget rescale columns when window is resized:
-        header = self.tableWidget.horizontalHeader()
-        header.setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode(1))
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode(1))
+        self.tableWidget.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode(1))
 
+        # Just for testing purposes:
+        self.insert_roster_headers()
+        self.insert_weeks()
         # Time to show yourself:
         self.show()
+
+    def insert_roster_headers(self):
+        inst = ["UiT", "UiB", "UiO", "NTNU", "Sigma2"]
+        index = 0
+        self.tableWidget.setColumnCount(5)
+        self.tableWidget.setRowCount(5)
+        for i in sorted(inst):
+            item = QtWidgets.QTableWidgetItem()
+            item.setText(i)
+            self.tableWidget.setHorizontalHeaderItem(index, item)
+            index += 1
+
+    def insert_weeks(self):
+        weeks = ["41", "42", "43", "44", "45"]
+        index = 0
+        for w in weeks:
+            item = QtWidgets.QTableWidgetItem()
+            item.setText(w)
+            self.tableWidget.setVerticalHeaderItem(index, item)
+            index += 1
 
 
 def main():

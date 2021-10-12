@@ -1,6 +1,9 @@
 
 
-class Staff:
+class Employee:
+    """
+    This is basically a person belonging to some organisation for a monthly salary.
+    """
     def __init__(self):
 
         self._name = None
@@ -63,17 +66,17 @@ class Staff:
 
 class Institution:
     """
-    An Institution contains one or more Staff
+    An Institution consists of several employees (staff).
     """
     def __init__(self):
-        self._staff_list = list()
+        self._staff = list()
         self._name = None
         self._leader = None
 
 
     @property
     def employees(self):
-        return len(self._staff_list)
+        return len(self._staff)
 
 
 class Organisation:
