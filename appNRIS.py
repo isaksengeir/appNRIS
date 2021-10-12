@@ -24,7 +24,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         inst = ["UiT", "UiB", "UiO", "NTNU", "Sigma2"]
         index = 0
         self.tableWidget.setColumnCount(5)
-        self.tableWidget.setRowCount(5)
+        self.tableWidget.setRowCount(50)
         for i in sorted(inst):
             item = QtWidgets.QTableWidgetItem()
             item.setText(i)
@@ -32,7 +32,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             index += 1
 
     def insert_weeks(self):
-        weeks = ["41", "42", "43", "44", "45"]
+        weeks = [str(x) for x in range(1, 50)]
         index = 0
         for w in weeks:
             item = QtWidgets.QTableWidgetItem()
