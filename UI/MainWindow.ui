@@ -6,20 +6,82 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>879</width>
-    <height>653</height>
+    <width>832</width>
+    <height>678</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>Tab 1</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QTableWidget" name="tableWidget">
+          <property name="sizeAdjustPolicy">
+           <enum>QAbstractScrollArea::AdjustIgnored</enum>
+          </property>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>true</bool>
+          </attribute>
+          <row>
+           <property name="text">
+            <string>42</string>
+           </property>
+          </row>
+          <column>
+           <property name="text">
+            <string>NTNU</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Sigma2</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>UiB</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>UiO</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>UiT</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Tab 2</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>879</width>
+     <width>832</width>
      <height>24</height>
     </rect>
    </property>
