@@ -13,21 +13,22 @@ __status__ = "Production"
 
 from datetime import datetime, timedelta, date
 import os.path
+from src.static_methods import week_to_date
 from tabulate import tabulate
-import colorful as cf
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 
-main_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+# main_dir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+main_dir = os.path.dirname(os.path.abspath(__file__))
 
 
 class GoogleCalendarService:
     """
     Creates service to communicate with Google calendar using credentials.
     """
-    def __init__(self, scopes=None, credentialsfile=f'{main_dir}/client_secret.json',
+    def __init__(self, scopes=None, credentialsfile=None,
                  token=None):
         """
         :param scopes: Permissions (https://developers.google.com/identity/protocols/oauth2/scopes#calendar)
@@ -42,7 +43,7 @@ class GoogleCalendarService:
 
         self.credentials = self.validate_token()
         self.calendar = self.start_calender_service()
-        self.calendar_ids = self.get_calendar_ids
+        self._calendar_ids = self.calendar_ids
 
     def verify_args(self):
         """
@@ -51,15 +52,11 @@ class GoogleCalendarService:
         if not self.scopes:
             raise SystemExit("ABORTING: Google API scopes not defined.\n"
                              "see https://developers.google.com/identity/protocols/oauth2/scopes#calendar")
-        if not self.credentialsfile:
+        if not os.path.isfile(self.credentialsfile) and not os.path.isfile(self.token):
             raise SystemExit("ABORTING: No credential file with secret keys defined.\n"
                              "see https://developers.google.com/identity/protocols/oauth2")
-        if not self.token:
-            if os.path.isfile(f"{main_dir}/token.json"):
-                self.token = f"{main_dir}/token.json"
-                print(f"Found {self.token} (delete it if you can't connect.)")
-            else:
-                print(f"No Token file specified. Creating {self.token} from credentials.")
+        if not os.path.isfile(self.token):
+            print(f"No Token file specified. Creating {self.token} from credentials.")
 
     def validate_token(self):
         """
@@ -90,32 +87,20 @@ class GoogleCalendarService:
         """
         return build(api, version, credentials=self.credentials)
 
-    def print_avail_calendars(self):
-        """
-        Prints out calendar summary (title) and the corresponding id
-        """
-        headers = ["Summary", "Calendar ID"]
-        table = list()
-        avail_cal = self.get_calendar_ids
-        for title in avail_cal.keys():
-            table.append([title, avail_cal[title]])
-
-        print(tabulate(table, map(cf.blue, headers), tablefmt="pretty", stralign="left"))
-
     @property
-    def get_all_calendars(self):
+    def calendars(self):
         """
         :return: list of calendars that user has access to.
         """
         return self.calendar.calendarList().list().execute().get('items', [])
 
     @property
-    def get_calendar_ids(self):
+    def calendar_ids(self):
         """
         :return: dict {summary:id}
         """
         cal_ids = dict()
-        for cal in self.get_all_calendars:
+        for cal in self.calendars:
             cal_ids[cal["summary"]] = cal["id"]
         return cal_ids
 
@@ -124,8 +109,8 @@ class MyCalendar(GoogleCalendarService):
     """
     Subclass of GoogleCalendarService whith focus on one selected calender from the available ones.
     """
-    def __init__(self, calendar_id, scopes, credentialsfile=f'{main_dir}/client_secret.json',
-                 token=f"{main_dir}/token.json"):
+    def __init__(self, calendar_id=None, scopes=None, credentialsfile=None,
+                 token=None):
         super(MyCalendar, self).__init__(scopes=scopes, credentialsfile=credentialsfile, token=token)
 
         self.id = calendar_id
@@ -236,7 +221,7 @@ class MyCalendar(GoogleCalendarService):
             return
 
         self.update_event(body=event, event_id=event_id)
-        print(cf.blue(f"{attendee} status set to: {response}\n"))
+        print(f"{attendee} status set to: {response}\n")
 
     def add_attendee(self, event_id, attendee):
         """
@@ -335,7 +320,7 @@ class RTCalendar(MyCalendar):
     """
     Custom calendar class (MyCalendar) for Metacenter RT support events and rosters.
     """
-    def __init__(self, calendar_id=None, scopes=None, credentialsfile='client_secret.json', token="token.json"):
+    def __init__(self, calendar_id=None, scopes=None, credentialsfile=None, token=None):
         if not scopes:
             scopes = ['https://www.googleapis.com/auth/calendar']
         if not calendar_id:
@@ -351,7 +336,7 @@ class RTCalendar(MyCalendar):
         self.print_rt_events(events)
 
     def get_print_events(self, when="today"):
-        print(cf.blue(f"* Events {when} in {self.cal_name} *"))
+        print(f"* Events {when} in {self.cal_name} *")
         self.print_rt_events(self.events_ahead(weeks=when))
 
     def get_print_weeks(self, week1, year1, week2, year2):
@@ -359,7 +344,7 @@ class RTCalendar(MyCalendar):
             week2 = week1
         day1 = week_to_date(year=year1, week=week1)[0]
         day2 = week_to_date(year=year2, week=week2)[0]
-        print(cf.blue(f"* Events in weeks {week1} ({year1}) - {week2} ({year2}) in {self.cal_name} *"))
+        print(f"* Events in weeks {week1} ({year1}) - {week2} ({year2}) in {self.cal_name} *")
         self.print_rt_events(self.get_events(from_date=day1, to_date=day2))
 
     def print_rt_events(self, events):
@@ -367,7 +352,7 @@ class RTCalendar(MyCalendar):
         :param max_results:
         :return:
         """
-        headers = map(cf.blue, ["Week", "From / To", "Summary", "Attendees", "Status", "Event id"])
+        headers = ["Week", "From / To", "Summary", "Attendees", "Status", "Event id"]
 
         table = list()
         for event in events:
@@ -388,7 +373,7 @@ class RTCalendar(MyCalendar):
                         email += "no@mail.given" + nl
                         pass
                     try:
-                        status += f"{cal_status_color(who['responseStatus'])}{nl}"
+                        status += f"{who['responseStatus']}{nl}"
 
                     except KeyError:
                         status += "needsAction" + nl
@@ -408,7 +393,7 @@ class RTCalendar(MyCalendar):
 
             table.append([f"{w1}\n{w2}", f"{starts}\n{ends}", summary, email, status, id])
             if needs_attention:
-                table[-1][-3:-1] = map(cf.red, table[-1][-3:-1])
+                table[-1][-3:-1] = table[-1][-3:-1]
 
         print(tabulate(table, headers, tablefmt="fancy_grid", stralign="left"))
 
@@ -476,7 +461,7 @@ class RTCalendar(MyCalendar):
         event1 = self.get_event(event_id1)
         event2 = self.get_event(event_id2)
 
-        print(cf.red("\nSwapping staff in shifts:"))
+        print("\nSwapping staff in shifts:")
         self.print_rt_events(events=[event1, event2])
 
         uv = ""
@@ -502,6 +487,6 @@ class RTCalendar(MyCalendar):
         event2["attendees"] = attendees2
         self.update_event(body=event2, event_id=event_id2)
 
-        print(cf.red("\nSwap completed:"))
+        print("\nSwap completed:")
         self.print_rt_events(events=[event1, event2])
 

@@ -7,6 +7,8 @@ class Settings:
     """
     def __init__(self):
         self._token = None
+        self._client_secret = None
+
         self._scopes = ['https://www.googleapis.com/auth/calendar']
         self._default_calendar = "1.linje-vaktliste"
         self._roster_calendar = "1.linje-vaktliste"
@@ -21,12 +23,23 @@ class Settings:
         self._default_calendar = value
 
     @property
+    def client_secret(self):
+        return self._client_secret
+
+    @client_secret.setter
+    def client_secret(self, value):
+        if os.path.isfile(value):
+            self._client_secret = value
+        else:
+            print(f"Can not find: {value}")
+
+    @property
     def token(self):
         return self._token
 
     @token.setter
     def token(self, value):
-        if os.path.exists(value):
+        if os.path.isfile(value):
             self._token = value
         else:
             print(f"Can not find: {value}")

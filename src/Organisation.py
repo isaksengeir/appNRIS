@@ -72,9 +72,11 @@ class Institution:
         self._staff = list()
         self._name = name
         self._leader = leader
-        if isinstance(dict, staff):
+
+        # Not sure if this is the best way to store staff:
+        if isinstance(staff, list):
             self._staff = staff
-        elif isinstance(list, staff):
+        elif isinstance(staff, list):
             self.create_staff(staff)
         else:
             self._staff = dict()
@@ -98,6 +100,14 @@ class Institution:
     def staff(self):
         return self._staff.values()
 
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
 
 class Organisation:
     """
@@ -106,15 +116,49 @@ class Organisation:
     def __init__(self, name=None, leader=None, institutions=None):
         self._name = name
         self._leader = leader
-        if type(list, institutions):
-            self._inst = institutions
+
+        # Keep one institution in front for actions:
+        self._institution = None
+
+        if institutions and isinstance(institutions, type(list)):
+            self._institutions = institutions
         else:
-            self._inst = list()
+            self._institutions = list()
 
     def add_institution(self, name=None):
         new_inst = Institution(name=name)
-        self._inst.append(new_inst)
+        self._institutions.append(new_inst)
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def institutions(self):
-        return self._inst
+        return self._institutions
+
+    @property
+    def count_institutions(self):
+        return len(self.institutions)
+
+    @property
+    def institution(self):
+        return self._institution
+
+    @institution.setter
+    def institution(self, name):
+        for inst in self.institutions:
+            if name == inst.name:
+                self._institution = inst
+
+    @institution.deleter
+    def institution(self):
+        if self.institutions in self.institutions:
+            deleted = self._institutions.pop(self._institutions.index(self.institution))
+            print(f"{deleted.name} deleted from {self.name}...")
+            self._institution = self.institutions[-1]
+
