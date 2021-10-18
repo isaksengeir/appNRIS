@@ -333,11 +333,11 @@ class RTCalendar(MyCalendar):
         if max_results:
             self.maxResults = max_results
         events = self.get_future_events
-        self.print_rt_events(events)
+        #self.print_rt_events(events)
 
     def get_print_events(self, when="today"):
         print(f"* Events {when} in {self.cal_name} *")
-        self.print_rt_events(self.events_ahead(weeks=when))
+        #self.print_rt_events(self.events_ahead(weeks=when))
 
     def get_print_weeks(self, week1, year1, week2, year2):
         if not week2:
@@ -345,14 +345,15 @@ class RTCalendar(MyCalendar):
         day1 = week_to_date(year=year1, week=week1)[0]
         day2 = week_to_date(year=year2, week=week2)[0]
         print(f"* Events in weeks {week1} ({year1}) - {week2} ({year2}) in {self.cal_name} *")
-        self.print_rt_events(self.get_events(from_date=day1, to_date=day2))
+        #self.print_rt_events(self.get_events(from_date=day1, to_date=day2))
 
-    def print_rt_events(self, events):
+    def rt_events(self, events):
         """
         :param max_results:
         :return:
         """
         headers = ["Week", "From / To", "Summary", "Attendees", "Status", "Event id"]
+        # institution name idw
 
         table = list()
         for event in events:
@@ -394,8 +395,6 @@ class RTCalendar(MyCalendar):
             table.append([f"{w1}\n{w2}", f"{starts}\n{ends}", summary, email, status, id])
             if needs_attention:
                 table[-1][-3:-1] = table[-1][-3:-1]
-
-        print(tabulate(table, headers, tablefmt="fancy_grid", stralign="left"))
 
     def add_shift(self, week, names, emails, institution="uiT", ukevakt=False, year=None):
         """
