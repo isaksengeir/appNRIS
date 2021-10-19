@@ -14,7 +14,7 @@ __status__ = "Production"
 from datetime import datetime, timedelta, date
 import os.path
 from src.static_methods import week_to_date
-from tabulate import tabulate
+#from tabulate import tabulate
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -55,7 +55,7 @@ class GoogleCalendarService:
         if not os.path.isfile(self.credentialsfile) and not os.path.isfile(self.token):
             raise SystemExit("ABORTING: No credential file with secret keys defined.\n"
                              "see https://developers.google.com/identity/protocols/oauth2")
-        if not os.path.isfile(self.token):
+        if not self.token or not os.path.isfile(self.token):
             print(f"No Token file specified. Creating {self.token} from credentials.")
 
     def validate_token(self):

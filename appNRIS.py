@@ -45,8 +45,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.update_roster()
 
         #self.tableRoster.cellClicked.connect(self.roster_clicked)
-        #self.tableRoster.cellChanged.connect(self.roster_clicked)
-        #self.tableRoster.cellActivated.connect(self.roster_clicked)
         self.tableRoster.itemSelectionChanged.connect(self.roster_clicked)
         #self.tableRoster.itemChanged
 
