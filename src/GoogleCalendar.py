@@ -232,7 +232,7 @@ class MyCalendar(GoogleCalendarService):
             return
 
         event = self.get_event(event_id)
-        event["attendees"].append({"email": attendee})
+        event["attendees"].append({"email": attendee, "responseStatus": "needsAction"})
 
         self.update_event(body=event, event_id=event_id)
 
@@ -303,6 +303,7 @@ class MyCalendar(GoogleCalendarService):
         print(f"Email reminder sent to {', '.join(emails)}.")
 
     def update_event(self, body, event_id):
+        print(body)
         event_updated = self.calendar.events().update(calendarId=self.id, eventId=event_id, body=body,
                                                       sendUpdates="all").execute()
 
@@ -396,7 +397,7 @@ class RTCalendar(MyCalendar):
             if needs_attention:
                 table[-1][-3:-1] = table[-1][-3:-1]
 
-    def add_shift(self, week, names, emails, institution="uiT", ukevakt=False, year=None):
+    def add_shift(self, week, names, emails, institution="UiT", ukevakt=False, year=None):
         """
         :param year: int
         :param week: int

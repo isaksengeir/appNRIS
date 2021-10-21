@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="background">
+    <file>icons/NRIS Zoom background.jpg</file>
+    <file>icons/background.png</file>
+  </qresource>
+</RCC>

@@ -35,3 +35,26 @@ def week_to_date(year, week):
     return firstdayofweek, lastdayofweek
 
 
+def event_body():
+    body = {
+        'summary': f'New event',
+        'location': "https://rt.uninett.no & https://slack.com/intl/en-no/",
+        'description': 'https://gitlab.sigma2.no/sigma2/interndokumentasjon/-/tree/master/support',
+        'start': {
+            'date': "",
+            'timeZone': 'GMT+02:00',
+        },
+        'end': {
+            'date': "",
+            'timeZone': 'GMT+02:00',
+        },
+        'attendees': [],
+        'reminders': {
+            'useDefault': 'useDefault',
+        },
+        "colorId": 8,
+        "anyoneCanAddSelf": True,
+        "sendUpdates": "all",
+        "sendNotifications": True,
+    }
+    return body

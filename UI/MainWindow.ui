@@ -6,12 +6,23 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>867</width>
-    <height>664</height>
+    <width>763</width>
+    <height>634</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/*QMainWindow {
+background-image: url(:/background/icons/NRIS Zoom background.jpg);
+}
+
+QTableWidget, QPlainTextEdit, QLineEdit, QListWidget, QPushButton, QSpinBox, QCheckBox, QComboBox {
+background-color: rgba(220, 220, 220, 50);
+color: rgb(220,220,220);
+}
+*/</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -24,239 +35,241 @@
        <attribute name="title">
         <string>Roster</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QTableWidget" name="tableRoster">
-          <property name="minimumSize">
-           <size>
-            <width>650</width>
-            <height>250</height>
-           </size>
+         <layout class="QGridLayout" name="gridLayout_11">
+          <property name="bottomMargin">
+           <number>0</number>
           </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QAbstractScrollArea::AdjustIgnored</enum>
+          <property name="verticalSpacing">
+           <number>0</number>
           </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::NoEditTriggers</set>
-          </property>
-          <attribute name="horizontalHeaderHighlightSections">
-           <bool>true</bool>
-          </attribute>
-         </widget>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_8">
           <item row="0" column="0">
-           <widget class="QPushButton" name="button_new_shift">
-            <property name="text">
-             <string>New shift</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QPushButton" name="button_swap_shifts">
-            <property name="text">
-             <string>Swap</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="button_new_roster">
-            <property name="text">
-             <string>New roster</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
+           <widget class="QTableWidget" name="tableRoster">
+            <property name="minimumSize">
              <size>
-              <width>40</width>
-              <height>20</height>
+              <width>650</width>
+              <height>250</height>
              </size>
             </property>
-           </spacer>
-          </item>
-          <item row="0" column="4">
-           <widget class="QPushButton" name="button_delete_shift">
-            <property name="text">
-             <string>Delete</string>
+            <property name="sizeAdjustPolicy">
+             <enum>QAbstractScrollArea::AdjustIgnored</enum>
             </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_7">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_14">
-            <property name="text">
-             <string>Year:</string>
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="spinBox_year">
-            <property name="minimum">
-             <number>1950</number>
-            </property>
-            <property name="maximum">
-             <number>2200</number>
-            </property>
-            <property name="value">
-             <number>2021</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_11">
-            <property name="text">
-             <string>Summary:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3" rowspan="2">
-           <widget class="QPlainTextEdit" name="plainTextEdit_summary"/>
-          </item>
-          <item row="0" column="4">
-           <widget class="QCheckBox" name="checkBox_ukevakt">
-            <property name="text">
-             <string>Ukevakt</string>
-            </property>
+            <attribute name="horizontalHeaderHighlightSections">
+             <bool>true</bool>
+            </attribute>
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>Week</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="spinBox_week">
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>53</number>
-            </property>
-            <property name="value">
-             <number>41</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <spacer name="verticalSpacer_5">
-            <property name="orientation">
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>17</width>
-              <height>18</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="4">
-           <widget class="QPushButton" name="button_reminer">
-            <property name="text">
-             <string>Remind</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_10">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_12">
-            <property name="text">
-             <string>Attendees:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="lineEdit_new_attendee"/>
-          </item>
-          <item row="0" column="2">
-           <widget class="QPushButton" name="button_add_attendee">
-            <property name="text">
-             <string>Add</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_9">
-          <item row="0" column="0" rowspan="2">
-           <widget class="QListWidget" name="listWidget_attendees"/>
-          </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="QComboBox" name="comboBox_status">
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <item>
-             <property name="text">
-              <string>needsAction</string>
-             </property>
+           <layout class="QGridLayout" name="gridLayout_8">
+            <item row="0" column="0">
+             <widget class="QPushButton" name="button_new_shift">
+              <property name="text">
+               <string>Add shift</string>
+              </property>
+             </widget>
             </item>
-            <item>
-             <property name="text">
-              <string>accepted</string>
-             </property>
+            <item row="0" column="1">
+             <widget class="QPushButton" name="button_swap_shifts">
+              <property name="text">
+               <string>Swap</string>
+              </property>
+             </widget>
             </item>
-            <item>
-             <property name="text">
-              <string>declined</string>
-             </property>
+            <item row="0" column="2">
+             <widget class="QPushButton" name="button_new_roster">
+              <property name="text">
+               <string>New roster</string>
+              </property>
+             </widget>
             </item>
-            <item>
-             <property name="text">
-              <string>tentative</string>
-             </property>
+            <item row="0" column="3">
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
-            <item>
-             <property name="text">
-              <string>who knows...</string>
-             </property>
+            <item row="0" column="4">
+             <widget class="QPushButton" name="button_delete_shift">
+              <property name="text">
+               <string>Delete</string>
+              </property>
+             </widget>
             </item>
-           </widget>
+           </layout>
           </item>
-          <item row="0" column="3">
-           <widget class="QPushButton" name="button_delete_attendee">
-            <property name="text">
-             <string>Delete</string>
+          <item row="2" column="0">
+           <layout class="QGridLayout" name="gridLayout_7">
+            <property name="spacing">
+             <number>-1</number>
             </property>
-           </widget>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>Year:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QSpinBox" name="spinBox_year">
+              <property name="minimum">
+               <number>1950</number>
+              </property>
+              <property name="maximum">
+               <number>2200</number>
+              </property>
+              <property name="value">
+               <number>2021</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Summary:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="4">
+             <widget class="QCheckBox" name="checkBox_ukevakt">
+              <property name="text">
+               <string>Ukevakt</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>Week</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="spinBox_week">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>53</number>
+              </property>
+              <property name="value">
+               <number>41</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4">
+             <widget class="QPushButton" name="button_reminer">
+              <property name="text">
+               <string>Remind</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3" rowspan="2">
+             <widget class="QPlainTextEdit" name="plainTextEdit_summary">
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>60</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
-          <item row="1" column="1">
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+          <item row="4" column="0">
+           <layout class="QGridLayout" name="gridLayout_9">
+            <property name="bottomMargin">
+             <number>0</number>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
+            <property name="spacing">
+             <number>-1</number>
             </property>
-           </spacer>
+            <item row="0" column="1" colspan="2">
+             <widget class="QComboBox" name="comboBox_status">
+              <property name="minimumSize">
+               <size>
+                <width>150</width>
+                <height>0</height>
+               </size>
+              </property>
+              <item>
+               <property name="text">
+                <string>needsAction</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>accepted</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>declined</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>tentative</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QPushButton" name="button_delete_attendee">
+              <property name="text">
+               <string>Delete</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" colspan="2">
+             <widget class="QPushButton" name="button_save_changes">
+              <property name="text">
+               <string>Save to calendar</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QPushButton" name="button_update">
+              <property name="text">
+               <string>Update</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" rowspan="2">
+             <widget class="QListWidget" name="listWidget_attendees"/>
+            </item>
+           </layout>
           </item>
-          <item row="1" column="2" colspan="2">
-           <widget class="QPushButton" name="button_save_event">
-            <property name="text">
-             <string>Save and update calendar</string>
-            </property>
-           </widget>
+          <item row="3" column="0">
+           <layout class="QGridLayout" name="gridLayout_10">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Attendees:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="lineEdit_new_attendee"/>
+            </item>
+            <item row="0" column="2">
+             <widget class="QPushButton" name="button_add_attendee">
+              <property name="text">
+               <string>Add</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -456,7 +469,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>867</width>
+     <width>763</width>
      <height>22</height>
     </rect>
    </property>
@@ -475,6 +488,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>
