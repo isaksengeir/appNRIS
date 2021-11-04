@@ -3,16 +3,18 @@ from PyQt5 import QtWidgets, QtCore
 from UI.MainWindow import Ui_MainWindow
 from src.Organisation import Organisation
 from src.Settings import Settings
-from src.static_methods import week_to_date, event_body
-from src.GoogleCalendar import MyCalendar, GoogleCalendarService, RTCalendar
+from src.static_methods import week_to_date
+from src.Event import RT_Event
+from src.GoogleCalendar import RTCalendar
 import sys
 import pickle
 import os
 from datetime import date, datetime
+
 main_dir = os.path.dirname(os.path.abspath(__file__))
 appstuff = f"{main_dir}/.appstuff.pkl"
 colors = {"blue": "#2e54ff", "green": "#08a91e", "yellow": "#db8f00", "orange": "#ff5733", "red": "#bf0000",
-          "grey": "#a3a3a3", "ukevakt": "#525252"}
+          "grey": "#a3a3a3", "ukevakt": "#1c1507"}
 
 response_colors = {"accepted": colors["green"], "needsAction": colors["blue"], "declined": colors["orange"],
                    "tentative": colors["yellow"]}
@@ -38,27 +40,44 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # TODO delete this ... just for testing
         print(self.cal.calendars)
 
+        self.events = list()
         self.roster_event = dict()
         self.events_modified = list()
         self.last_update = None
-        # Just for testing purposes:
+
         self.update_table_headers()
+        self.get_calendar_roster_events()
         self.update_roster()
+        self.fill_staff_lists()
+        self.clear_staff_widgets()
 
         #self.tableRoster.cellClicked.connect(self.roster_clicked)
         self.tableRoster.itemSelectionChanged.connect(self.roster_clicked)
         #self.tableRoster.itemChanged
+        self.tableStaff.itemSelectionChanged.connect(self.staff_clicked)
+
+        self.tableRoster.verticalHeader().sectionClicked.connect(self.week_number_clicked)
         self.listWidget_attendees.itemClicked.connect(self.update_response_combobox)
         #self.comboBox_status.currentTextChanged.connect(self.set_response)
         self.comboBox_status.activated.connect(self.set_response)
         self.button_delete_shift.clicked.connect(self.delete_event)
         self.checkBox_ukevakt.clicked.connect(self.ukevakt_toggle)
-        self.button_update.clicked.connect(self.update_roster)
+        self.button_update.clicked.connect(self.get_calendar_roster_events)
         self.button_save_changes.clicked.connect(self.save_to_calendar)
         self.button_add_attendee.clicked.connect(self.add_attendee)
+        self.button_delete_attendee.clicked.connect(self.delete_attendee)
+        self.button_set_summary.clicked.connect(self.set_summary_text)
+        self.button_swap_shifts.clicked.connect(self.swap_shifts)
+        ###### STAFF
+        self.button_new_employee.clicked.connect(self.new_employee)
+        self.button_staff_delete.clicked.connect(self.remove_employee)
+        self.button_save_to_employee.clicked.connect(self.save_to_employee)
 
         # Time to show yourself:
         self.show()
+
+    def week_number_clicked(self):
+        print("You clicked an entire week! jai!")
 
     def init_nris(self):
         """
@@ -83,10 +102,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def scalable_tables(self):
         # Make table widget rescale columns when window is resized:
         self.tableRoster.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode(1))
-        self.tableRoster.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode(3))
-
         self.tableStaff.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode(1))
-        self.tableStaff.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode(1))
+        #self.tableRoster.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode(3))
+        self.tableRoster.verticalHeader().setDefaultSectionSize(50)
 
     def update_statusbar(self):
         """
@@ -101,6 +119,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.statusbar.showMessage(status_txt)
 
     @property
+    def selected_cells(self):
+        cells = list()
+        for i in self.tableRoster.selectedItems():
+            cells.append((i.row(), i.column()))
+        return cells
+
+    @property
+    def selected_by_columns(self):
+        cells = dict()
+        for i in self.tableRoster.selectedItems():
+            if i.column() not in cells:
+                cells[i.column()] = list()
+            cells[i.column()].append(i.row())
+        return cells
+
+    @property
     def current_cell(self):
         """
         returns current row and column indexes
@@ -113,59 +147,174 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             return None
         return self.roster_event[self.current_cell]
 
-    @current_event.setter
-    def current_event(self, value):
-        self.roster_event[self.current_cell] = value
+    def get_calendar_roster_events(self):
+        """
+        TODO this now default to do one year ahead ... make it more flexible, or is it ok?
+        """
+        # Get calendar events from_date --> to_date
+        week_today = datetime.now().isocalendar()[1]
+        year_today = datetime.now().year
+        date1 = week_to_date(year=year_today, week=week_today)[0]
+        date2 = week_to_date(year=year_today + 1, week=week_today)[0]
+
+        self.events = [RT_Event(event=event) for event in self.cal.get_events(from_date=date1, to_date=date2)]
+
+        self.last_update = self.get_now_str()
+        self.events_modified.clear()
+        self.update_roster()
+        self.auto_make_staff()
+
+    def auto_make_staff(self):
+        print(self.nris.institutions_names)
+        for event in self.events:
+            i = [x.lower() for x in self.nris.institutions_names].index(event.institution.lower())
+            inst = self.nris.institutions_names[i]
+
+            self.nris.institution = inst
+            if event.attendees:
+                for who in event.attendees.all:
+                    if who.email not in self.nris.institution.emails:
+                        self.nris.institution.employee = who.email
+
+        self.fill_staff_lists()
 
     def roster_clicked(self):
 
-        start = datetime.strptime(self.current_event["start"].get("date"), "%Y-%m-%d")
-        #end = datetime.strptime(self.current_event["end"].get("date"), "%Y-%m-%d")
+        if self.current_cell[1] >= 0:
+            inst = self.tableRoster.horizontalHeaderItem(self.current_cell[1]).text()
+            self.nris.institution = inst
 
-        if "ukevakt" in self.current_event["summary"].lower() or "ukesvakt" in self.current_event["summary"].lower():
+        if not self.current_event:
+            self.clear_text()
+            self.update_buttons()
+            return
+
+        if self.current_event.ukevakt:
             self.checkBox_ukevakt.setChecked(True)
         else:
             self.checkBox_ukevakt.setChecked(False)
 
-        self.plainTextEdit_summary.setPlainText(self.current_event["summary"])
-        self.spinBox_year.setValue(start.year)
-        self.spinBox_week.setValue(start.isocalendar().week)
+        self.plainTextEdit_summary.setPlainText(self.current_event.summary)
+        self.spinBox_year.setValue(int(self.current_event.start_year))
+        self.spinBox_week.setValue(int(self.current_event.start_week))
 
         self.update_attendees_status()
+        self.update_buttons()
+        self.update_emails()
+
+    def update_roster(self):
+        """
+        Show events one year ahead in time... for now at least
+        """
+        self.tableRoster.clearSelection()
+        self.tableRoster.setRowCount(0)
+        self.roster_event.clear()
+
+        week = None
+
+        for event in self.events:
+            w1 = event.start_week
+            y1 = event.start_year
+
+            # New week, new row with new vertical header
+            if w1 != week:
+                week = w1
+                rows = self.tableRoster.rowCount()
+                self.tableRoster.insertRow(rows)
+                item = QtWidgets.QTableWidgetItem()
+                item.setText(f"{y1}-{str(week)} ")
+                self.tableRoster.setVerticalHeaderItem(rows, item)
+
+            if event.institution in self.nris.institutions_names:
+                inst = event.institution
+            else:
+                inst = self.guess_institution(event=event)
+                event.institution = inst
+
+            _i = int(self.tableRoster.rowCount() - 1)
+            _j = self.nris.institutions_names.index(inst)
+            self.roster_event[(_i, _j)] = event
+            self.tableRoster.setItem(_i, _j, QtWidgets.QTableWidgetItem(event.summary_names))
+
+        self.color_roster_events()
+        self.update_statusbar()
+        self.roster_clicked()
+
+    def update_emails(self):
+        emails = list()
+        emails.append("")
+        self.comboBox_new_attendee.clear()
+        for employee in self.nris.institution.staff:
+            emails.append(employee.email)
+        if len(emails) > 0:
+            self.comboBox_new_attendee.addItems(emails)
+
+    def clear_text(self):
+        self.listWidget_attendees.clear()
+        self.plainTextEdit_summary.clear()
+        self.comboBox_new_attendee.clear()
+
+    def default_empty_shift(self):
+        # TODO update year, week, and parts of summary based on current cell
+        pass
+
+    def swap_shifts(self):
+        """
+        will swap attendees in event i and and even j
+        """
+        a, b = self.selected_cells[:]
+
+        self.roster_event[a].attendees, self.roster_event[b].attendees = self.roster_event[b].attendees, \
+                                                                         self.roster_event[a].attendees
+        self.roster_event[a].summary, self.roster_event[b].summary = self.roster_event[b].summary_names, \
+                                                                    self.roster_event[a].summary_names
+        #self.append_local_change(cells=[a, b])
+        self.events_modified.extend([a, b])
+        self.update_roster()
 
     def update_attendees_status(self):
         self.listWidget_attendees.clear()
-        try:
-            for who in self.current_event["attendees"]:
-                self.listWidget_attendees.insertItem(0, f"{who['email']} ({who['responseStatus']})")
-                self.listWidget_attendees.item(0).setForeground(PyQt5.QtGui.QColor(response_colors[who['responseStatus']]))
-        except KeyError:
+        if self.current_event.attendees:
+            for who in self.current_event.attendees.all:
+                self.listWidget_attendees.insertItem(0, f"{who.email} ({who.responseStatus})")
+                self.listWidget_attendees.item(0).setForeground(PyQt5.QtGui.QColor(response_colors[who.responseStatus]))
+        else:
             pass
 
     def add_attendee(self):
-        attendee = self.lineEdit_new_attendee.text()
+        attendee = self.comboBox_new_attendee.currentText()
 
         if not "@" in attendee:
             print(f"{attendee} does not seem like a valid email...")
             return
 
         if not self.current_event:
-            # TODO implement this in class (auto-fill institution, week, year from gui)
-            self.current_event = event_body()
+            # implement this in class (auto-fill institution, week, year from gui)
+            #self.current_event = event_body()
+            print("No events exist here... I am not sure what to do about this.... ")
+        if not self.current_event.attendees:
+            self.current_event.attendees = {"email": attendee, "responseStatus": "needsAction"}
+        else:
+            self.current_event.attendees.attendee = {"email": attendee, "responseStatus": "needsAction"}
 
-        if not "attendees" in self.current_event:
-            self.current_event["attendees"] = list()
+        self.append_local_change()
 
-        self.current_event["attendees"].append({"email": attendee, "responseStatus": "needsAction"})
-        print(self.current_event["attendees"])
-        if self.current_cell not in self.events_modified:
-            self.events_modified.append(self.current_cell)
-        self.listWidget_attendees.insertItem(0, attendee)
+    def delete_attendee(self):
+        try:
+            email = self.listWidget_attendees.currentItem().text().split()[0]
+        except:
+            return
 
+        self.current_event.attendees.attendee = email
+        del self.current_event.attendees.attendee
+        self.color_roster_events()
+        self.append_local_change()
 
     def update_table_headers(self):
         index = 0
         inst = [x.name for x in self.nris.institutions]
+
+        self.comboBox_institution.addItems(inst)
 
         self.tableRoster.setColumnCount(len(inst))
         self.tableStaff.setColumnCount(len(inst))
@@ -179,9 +328,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             self.tableRoster.setHorizontalHeaderItem(index, item)
             self.tableStaff.setHorizontalHeaderItem(index, item2)
+
             index += 1
 
     def get_institution_table_column(self):
+        """
+        Get column index for institution
+        """
         institutions = [x.name.lower() for x in self.nris.institutions]
         column = dict()
         c = 0
@@ -194,56 +347,28 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         n = datetime.now()
         return f"{n.year}-{n.month:02d}-{n.day:02d} {n.hour:02d}:{n.minute:02d}:{n.second:02d}"
 
-    def update_roster(self):
-        """
-        Show events one year ahead in time... for now at least
-        """
-        self.tableRoster.clearSelection()
-        self.tableRoster.setRowCount(0)
-        self.roster_event.clear()
-        self.events_modified.clear()
+    def update_buttons(self):
+        self.button_swap_shifts.setEnabled(False)
 
-        # Get calendar events from_date --> to_date
-        week_today = datetime.now().isocalendar()[1]
-        year_today = datetime.now().year
-        date1 = week_to_date(year=year_today, week=week_today)[0]
-        date2 = week_to_date(year=year_today+1, week=week_today)[0]
+        if self.current_event:
+            self.button_new_shift.setEnabled(False)
+        else:
+            self.button_new_shift.setEnabled(True)
+        # Can only swap within one institution (column):
+        if len(self.selected_by_columns.keys()) == 1:
+            # Can only swap 2 shifts:
+            for j in self.selected_by_columns.keys():
+                if len(self.selected_by_columns[j]) == 2:
+                    self.button_swap_shifts.setEnabled(True)
 
-        self.last_update = self.get_now_str()
-        events = self.cal.get_events(from_date=date1, to_date=date2)
-
-        # Get table indexes for institutions (sorted alphabetically)
-        column = self.get_institution_table_column()
-
-        week = None
-        for event in events:
-            starts = event['start'].get('dateTime', event['start'].get('date'))
-            # TODO probabøu enough with: event["start"].get("date")
-            ends = event['end'].get('dateTime', event['end'].get('date'))
-            w1 = date(*map(int, starts.split("T")[0].split("-")[0:3])).isocalendar()[1]
-            w2 = date(*map(int, ends.split("T")[0].split("-")[0:3])).isocalendar()[1]
-
-            # New week, new row with new vertical header
-            if w1 == w2 and w1 != week:
-                # Todo print year perhaps ?
-                week = w1
-                rows = self.tableRoster.rowCount()
-                self.tableRoster.insertRow(rows)
-                item = QtWidgets.QTableWidgetItem()
-                item.setText(str(week))
-                self.tableRoster.setVerticalHeaderItem(rows, item)
-
-            inst = event["summary"].split(":")[0].lower()
-            inst = inst.split("(")[0].strip()
-            who = event["summary"].split(":")[1]
-
-            _i = int(self.tableRoster.rowCount() - 1)
-            _j = int(column[inst])
-            self.roster_event[(_i, _j)] = event
-            self.tableRoster.setItem(_i, _j, QtWidgets.QTableWidgetItem(who))
-
-            self.color_roster_events()
-            self.update_statusbar()
+    def guess_institution(self, event):
+        institutions = [x.name.lower() for x in self.nris.institutions]
+        if event.institution.lower() not in institutions:
+            print(f"{event.institution} does not seem to be a part of {self.nris.name} consisting of "
+                  f"{self.nris.institutions_names}")
+            return None
+        else:
+            return self.nris.institutions_names[institutions.index(event.institution.lower())]
 
     def update_response_combobox(self):
         response = self.listWidget_attendees.currentItem().text().split()[-1][1:-1]
@@ -252,7 +377,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.comboBox_status.setCurrentText(response)
 
     def set_response(self):
-        if "attendees" not in self.current_event.keys():
+        if not self.current_event.attendees:
             return
 
         email = None
@@ -261,27 +386,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         if not email:
             return
+
         response = self.comboBox_status.currentText()
 
-        for who in self.current_event["attendees"]:
-            if who["email"] == email:
-                who["responseStatus"] = response
+        for who in self.current_event.attendees.all:
+            if who.email == email:
+                who.responseStatus = response
 
-        print(self.current_event["attendees"])
-
-        i,j = self.current_cell
-        self.events_modified.append((i, j))
-        self.roster_clicked()
-        self.color_roster_events()
-        self.update_statusbar()
+        self.append_local_change()
 
     def save_to_calendar(self):
         print(f"Will now push {len(self.events_modified)} to calendar")
 
         for ij in self.events_modified:
-            print(self.roster_event[ij]["id"])
-            self.cal.update_event(body=self.roster_event[ij], event_id=self.roster_event[ij]["id"])
+            self.cal.update_event(body=self.roster_event[ij].body, event_id=self.roster_event[ij].id)
 
+        self.events_modified.clear()
         self.update_roster()
 
     def decide_event_foreground(self, event):
@@ -289,10 +409,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         When multiple attendees, color event in roster table based on worst attendee.
         """
         txt_color = colors["green"]
-        if "attendees" in event.keys():
-            for who in event["attendees"]:
-                if who["responseStatus"] != "accepted":
-                    txt_color = response_colors[who["responseStatus"]]
+        if event.attendees:
+            for attendee in event.attendees.all:
+                if attendee.responseStatus != "accepted":
+                    txt_color = response_colors[attendee.responseStatus]
                     break
         else:
             txt_color = colors["orange"]
@@ -309,7 +429,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if ij in self.roster_event.keys():
 
                     event = self.roster_event[ij]
-                    if "ukevakt" in event["summary"].lower() or "ukesvakt" in event["summary"].lower():
+                    if event.ukevakt:
                         self.tableRoster.item(i, j).setBackground(PyQt5.QtGui.QColor(colors["ukevakt"]))
                     else:
                         self.tableRoster.item(i, j).setData(PyQt5.QtCore.Qt.BackgroundRole, None)
@@ -325,23 +445,120 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         i, j = self.current_cell
         if self.checkBox_ukevakt.isChecked():
             self.tableRoster.item(i, j).setBackground(PyQt5.QtGui.QColor(colors["ukevakt"]))
-            self.current_event["summary"] += " (Ukevakt)"
+            self.current_event.ukevakt = True
 
         else:
             self.tableRoster.item(i, j).setData(PyQt5.QtCore.Qt.BackgroundRole, None)
-            self.current_event["summary"] = self.current_event["summary"].replace(" (Ukevakt)", "")\
-                .replace(" (ukevakt)", "").replace(" (Ukesvakt)", "")
+            self.current_event.ukevakt = False
 
-        self.tableRoster.item(i, j).setText(self.current_event["summary"].split(":")[1])
-        self.events_modified.append((i, j))
+        self.tableRoster.item(i, j).setText(self.current_event.summary_names)
+        self.append_local_change()
+
+    def set_summary_text(self):
+
+        if not self.current_event:
+            return
+        txt = self.plainTextEdit_summary.toPlainText()
+        i, j = self.current_cell
+        self.current_event.summary = txt
+        self.tableRoster.item(i, j).setText(self.current_event.summary_names)
+        self.append_local_change()
+
+    def append_local_change(self, cells=None):
+        if not cells:
+            cells = [self.current_cell]
+
+        for cell in cells:
+            if cell not in self.events_modified:
+                self.events_modified.append(self.current_cell)
+
         self.roster_clicked()
         self.color_roster_events()
         self.update_statusbar()
 
     def delete_event(self):
-        print(f"This will delete id {self.current_event['id']}")
+        print(f"This will delete id {self.current_event.id}")
+        print("THIS IS NOT DOING ANYTHING SCARY.... yet")
+        #TODO prompt warning window before deleting anything here!
         #self.cal.delete_event(self.current_event['id'])
-        self.update_roster()
+        #self.update_roster()
+
+    ######STAFF######
+    def fill_staff_lists(self):
+        self.tableStaff.setRowCount(0)
+        institutions = [i.name for i in self.nris.institutions]
+
+        for i in range(len(institutions)):
+            self.nris.institution = institutions[i]
+            staff = self.nris.institution.staff
+            for j in range(len(staff)):
+                empl = staff[j]
+                if j >= self.tableStaff.rowCount():
+                    rows = self.tableStaff.rowCount()
+                    self.tableStaff.insertRow(rows)
+                self.tableStaff.setItem(j, i, QtWidgets.QTableWidgetItem(str(empl.email)))
+
+    def staff_clicked(self):
+        self.clear_staff_widgets()
+        employee = self.tableStaff.currentItem()
+
+        try:
+            inst = self.tableStaff.horizontalHeaderItem(self.tableStaff.currentColumn()).text()
+        except AttributeError:
+            return
+
+        self.comboBox_institution.setCurrentText(inst)
+        self.nris.institution = inst
+
+        if employee:
+            self.nris.institution.employee = employee.text()
+            self.fill_staff_widgets()
+            self.button_save_to_employee.setEnabled(True)
+
+    def clear_staff_widgets(self):
+        self.button_save_to_employee.setEnabled(False)
+        self.lineEdit_staff_name.clear()
+        self.lineEdit_staff_email.clear()
+        self.spinbox_shift_frq.setValue(1.00)
+        self.checkBox_sharedshifts.setChecked(False)
+        self.checkBox_does_ukevakt.setChecked(True)
+
+    def fill_staff_widgets(self):
+        who = self.nris.institution.employee
+        print(who.email)
+        self.lineEdit_staff_name.setText(who.name)
+        self.lineEdit_staff_email.setText(who.email)
+        self.spinbox_shift_frq.setValue(who.vacancy_rate)
+        self.checkBox_does_ukevakt.setChecked(who.ukevakt)
+        self.checkBox_sharedshifts.setChecked(who.shared_shifts)
+
+    def new_employee(self):
+        inst = self.comboBox_institution.currentText()
+        email = self.lineEdit_staff_email.text()
+        if not "@" in email:
+            print("Invalid email address")
+            return
+
+        self.nris.institution = inst # change to correct institution
+        self.nris.institution.new_employee(email=email)
+
+        self.save_to_employee()
+
+    def save_to_employee(self):
+        self.nris.institution.employee.email = self.lineEdit_staff_email.text()
+        self.nris.institution.employee.name = self.lineEdit_staff_name.text()
+        self.nris.institution.employee.institution = self.comboBox_institution.currentText()
+        self.nris.institution.employee.vacancy_rate = float(self.spinbox_shift_frq.value())
+        self.nris.institution.employee.ukevakt = self.checkBox_does_ukevakt.isChecked()
+        self.nris.institution.employee.shared_shifts = self.checkBox_sharedshifts.isChecked()
+
+        self.fill_staff_lists()
+
+    def remove_employee(self):
+        email = self.tableStaff.currentItem().text()
+        self.nris.institution.employee = email
+        del self.nris.institution.employee
+        self.fill_staff_lists()
 
     def save_objects(self, obj, filename):
         """

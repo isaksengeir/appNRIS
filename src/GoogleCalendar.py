@@ -244,6 +244,7 @@ class MyCalendar(GoogleCalendarService):
         for i in range(len(event["attendees"])):
             if event["attendees"][i]["email"] == attendee:
                 del event["attendees"][i]
+                break
         self.update_event(body=event, event_id=event_id)
 
     def replace_attendee(self, event_id, attendee_old, attendee_new):
@@ -489,4 +490,7 @@ class RTCalendar(MyCalendar):
 
         print("\nSwap completed:")
         self.print_rt_events(events=[event1, event2])
+
+
+
 
