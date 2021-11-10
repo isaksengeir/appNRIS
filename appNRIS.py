@@ -1,5 +1,6 @@
 import PyQt5.QtGui
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtWidgets import QMessageBox
 from UI.MainWindow import Ui_MainWindow
 from src.Organisation import Organisation
 from src.Settings import Settings
@@ -9,7 +10,7 @@ from src.GoogleCalendar import RTCalendar
 import sys
 import pickle
 import os
-from datetime import date, datetime
+from datetime import datetime
 
 main_dir = os.path.dirname(os.path.abspath(__file__))
 appstuff = f"{main_dir}/.appstuff.pkl"
@@ -68,6 +69,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_delete_attendee.clicked.connect(self.delete_attendee)
         self.button_set_summary.clicked.connect(self.set_summary_text)
         self.button_swap_shifts.clicked.connect(self.swap_shifts)
+        self.button_reminer.clicked.connect(self.remind_event)
         ###### STAFF
         self.button_new_employee.clicked.connect(self.new_employee)
         self.button_staff_delete.clicked.connect(self.remove_employee)
@@ -289,8 +291,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             return
 
         if not self.current_event:
-            # implement this in class (auto-fill institution, week, year from gui)
-            #self.current_event = event_body()
             print("No events exist here... I am not sure what to do about this.... ")
         if not self.current_event.attendees:
             self.current_event.attendees = {"email": attendee, "responseStatus": "needsAction"}
@@ -372,8 +372,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_response_combobox(self):
         response = self.listWidget_attendees.currentItem().text().split()[-1][1:-1]
-        print(response)
-
         self.comboBox_status.setCurrentText(response)
 
     def set_response(self):
@@ -396,13 +394,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.append_local_change()
 
     def save_to_calendar(self):
-        print(f"Will now push {len(self.events_modified)} to calendar")
+        print(f"Pushing {len(self.events_modified)} to calendar")
 
         for ij in self.events_modified:
             self.cal.update_event(body=self.roster_event[ij].body, event_id=self.roster_event[ij].id)
 
         self.events_modified.clear()
         self.update_roster()
+
+    def remind_event(self):
+        self.cal.remind_event(event_id=self.current_event.id)
 
     def decide_event_foreground(self, event):
         """
@@ -479,9 +480,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def delete_event(self):
         print(f"This will delete id {self.current_event.id}")
         print("THIS IS NOT DOING ANYTHING SCARY.... yet")
-        #TODO prompt warning window before deleting anything here!
-        #self.cal.delete_event(self.current_event['id'])
-        #self.update_roster()
+        ids = list()
+        for ij in self.selected_cells:
+            if ij in self.roster_event.keys():
+                ids.append(self.roster_event[ij].id)
+        if len(ids) == 0:
+            print("Nothing to delete here. Moving on!")
+            return
+
+        cont = QMessageBox.question(self, 'MessageBox', f"You are about to delete {len(ids)} shift(s) permanently from the"
+                                                        f" calender! Are you sure?",
+                                    QMessageBox.Yes | QMessageBox.No )
+        if cont == QMessageBox.Yes:
+            print("Things just got scary - deleting stuff from Google calendar...")
+            for id in ids:
+                self.cal.delete_event(id)
+
+        self.get_calendar_roster_events()
+        self.update_roster()
 
     ######STAFF######
     def fill_staff_lists(self):
@@ -525,7 +541,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def fill_staff_widgets(self):
         who = self.nris.institution.employee
-        print(who.email)
         self.lineEdit_staff_name.setText(who.name)
         self.lineEdit_staff_email.setText(who.email)
         self.spinbox_shift_frq.setValue(who.vacancy_rate)

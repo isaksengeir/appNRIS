@@ -32,7 +32,6 @@ class Attendee:
 
     @responseStatus.setter
     def responseStatus(self, value):
-        print(f"NEW RESPONSE {value} for {self.email}")
         self._responseStatus = value
 
     @property
