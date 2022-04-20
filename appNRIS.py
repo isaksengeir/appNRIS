@@ -169,14 +169,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def auto_make_staff(self):
         print(self.nris.institutions_names)
         for event in self.events:
-            i = [x.lower() for x in self.nris.institutions_names].index(event.institution.lower())
-            inst = self.nris.institutions_names[i]
+            if event.institution:
+                i = [x.lower() for x in self.nris.institutions_names].index(event.institution.lower())
+                inst = self.nris.institutions_names[i]
 
-            self.nris.institution = inst
-            if event.attendees:
-                for who in event.attendees.all:
-                    if who.email not in self.nris.institution.emails:
-                        self.nris.institution.employee = who.email
+                self.nris.institution = inst
+                if event.attendees:
+                    for who in event.attendees.all:
+                        if who.email not in self.nris.institution.emails:
+                            self.nris.institution.employee = who.email
 
         self.fill_staff_lists()
 
@@ -232,11 +233,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 inst = self.guess_institution(event=event)
                 event.institution = inst
-
-            _i = int(self.tableRoster.rowCount() - 1)
-            _j = self.nris.institutions_names.index(inst)
-            self.roster_event[(_i, _j)] = event
-            self.tableRoster.setItem(_i, _j, QtWidgets.QTableWidgetItem(event.summary_names))
+            if event.institution:
+                _i = int(self.tableRoster.rowCount() - 1)
+                _j = self.nris.institutions_names.index(inst)
+                self.roster_event[(_i, _j)] = event
+                self.tableRoster.setItem(_i, _j, QtWidgets.QTableWidgetItem(event.summary_names))
 
         self.color_roster_events()
         self.update_statusbar()
@@ -270,6 +271,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                                                          self.roster_event[a].attendees
         self.roster_event[a].summary, self.roster_event[b].summary = self.roster_event[b].summary_names, \
                                                                     self.roster_event[a].summary_names
+
+
         #self.append_local_change(cells=[a, b])
         self.events_modified.extend([a, b])
         self.update_roster()
@@ -363,6 +366,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def guess_institution(self, event):
         institutions = [x.name.lower() for x in self.nris.institutions]
+
+        if not event.institution:
+            return None
+
         if event.institution.lower() not in institutions:
             print(f"{event.institution} does not seem to be a part of {self.nris.name} consisting of "
                   f"{self.nris.institutions_names}")
@@ -397,7 +404,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         print(f"Pushing {len(self.events_modified)} to calendar")
 
         for ij in self.events_modified:
-            self.cal.update_event(body=self.roster_event[ij].body, event_id=self.roster_event[ij].id)
+            #self.cal.update_event(body=self.roster_event[ij].body, event_id=self.roster_event[ij].id)
+            print(self.roster_event[ij].body["summary"])
 
         self.events_modified.clear()
         self.update_roster()
@@ -443,7 +451,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.tableRoster.item(i, j).setForeground(PyQt5.QtGui.QColor(txt_clr))
 
     def ukevakt_toggle(self):
+
         i, j = self.current_cell
+        try:
+            self.tableRoster.item(i,j).type()
+        except AttributeError:
+            return
+
         if self.checkBox_ukevakt.isChecked():
             self.tableRoster.item(i, j).setBackground(PyQt5.QtGui.QColor(colors["ukevakt"]))
             self.current_event.ukevakt = True
@@ -452,17 +466,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.tableRoster.item(i, j).setData(PyQt5.QtCore.Qt.BackgroundRole, None)
             self.current_event.ukevakt = False
 
-        self.tableRoster.item(i, j).setText(self.current_event.summary_names)
+        self.tableRoster.item(i, j).setText(self.current_event.summary_names_ukevakt)
         self.append_local_change()
+
 
     def set_summary_text(self):
 
         if not self.current_event:
             return
+
         txt = self.plainTextEdit_summary.toPlainText()
         i, j = self.current_cell
         self.current_event.summary = txt
+
+        # Update text
         self.tableRoster.item(i, j).setText(self.current_event.summary_names)
+
         self.append_local_change()
 
     def append_local_change(self, cells=None):
@@ -473,12 +492,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if cell not in self.events_modified:
                 self.events_modified.append(self.current_cell)
 
-        self.roster_clicked()
         self.color_roster_events()
         self.update_statusbar()
 
     def delete_event(self):
-        print(f"This will delete id {self.current_event.id}")
+        try:
+            print(f"This will delete id {self.current_event.id}")
+        except AttributeError:
+            return
+
         print("THIS IS NOT DOING ANYTHING SCARY.... yet")
         ids = list()
         for ij in self.selected_cells:

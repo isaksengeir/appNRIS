@@ -191,12 +191,16 @@ class Event:
     def body(self):
         if self.attendees:
             self._body["attendees"] = self.attendees.attendees_body
+
         return self._body
 
     @body.setter
     def body(self, value):
         if isinstance(value, dict):
-            self._body = value
+            self._body.update(value)
+        else:
+            print("body property takes dict...")
+            print(value)
 
     @property
     def start(self):
@@ -246,6 +250,7 @@ class Event:
     @summary.setter
     def summary(self, value):
         self._summary = value
+        self.body = {"summary": value}
 
 
 class RT_Event(Event):
@@ -286,17 +291,22 @@ class RT_Event(Event):
             if self._institution not in self._summary:
                 self._summary = f"{self._institution}: {self._summary}"
         if self._ukevakt and "ukevakt" not in self._summary.lower():
-            self._summary = f"{self._summary} (Ukevakt)"
+            self._summary = f"{self._summary} (ukevakt)"
         if not self._ukevakt and "ukevakt" in self._summary.lower():
             self._summary = self._summary.split("(")[0].strip()
 
         return self._summary
 
-
     @summary.setter
     def summary(self, value):
+        print("I got this value for summary setter:")
+        print(value)
+
         if "ukevakt" in value.lower():
             self.ukevakt = True
+        else:
+            if self.ukevakt:
+                value += " (ukevakt)"
         if ":" in value:
             if self._institution:
                 if self._institution not in value:
@@ -305,11 +315,20 @@ class RT_Event(Event):
                     print(f"I will not allow you to change from f{self._institution} to {wtf}")
             else:
                 self._institution = value.split(":")[0].split("(")[0].strip()
+        else:
+            if self.institution:
+                value = f"{self.institution}:{value}"
         self._summary = value
+        self.body = {"summary": f"{value}"}
 
     @property
     def summary_names(self):
-        return self.summary.split(":")[-1].replace("(Ukevakt)", "")
+        return self.summary.split(":")[-1].replace("(Ukevakt)", "").replace("(ukevakt)", "")
+
+
+    @property
+    def summary_names_ukevakt(self):
+        return self.summary.split(":")[-1]
 
 
 
