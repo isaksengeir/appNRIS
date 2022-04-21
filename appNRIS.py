@@ -54,7 +54,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         #self.tableRoster.cellClicked.connect(self.roster_clicked)
         self.tableRoster.itemSelectionChanged.connect(self.roster_clicked)
-        #self.tableRoster.itemChanged
         self.tableStaff.itemSelectionChanged.connect(self.staff_clicked)
 
         self.tableRoster.verticalHeader().sectionClicked.connect(self.week_number_clicked)
@@ -182,14 +181,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.fill_staff_lists()
 
     def roster_clicked(self):
-
+        self.clear_text()
         if self.current_cell[1] >= 0:
             inst = self.tableRoster.horizontalHeaderItem(self.current_cell[1]).text()
             self.nris.institution = inst
 
+        self.update_buttons()
+        self.update_emails()
+
         if not self.current_event:
-            self.clear_text()
+
             self.update_buttons()
+            self.default_shift()
             return
 
         if self.current_event.ukevakt:
@@ -202,8 +205,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.spinBox_week.setValue(int(self.current_event.start_week))
 
         self.update_attendees_status()
-        self.update_buttons()
-        self.update_emails()
+
+
+    def default_shift(self):
+        try:
+            year, week = self.tableRoster.verticalHeaderItem(self.current_cell[0]).text().split("-")
+        except AttributeError:
+            return
+
+        self.spinBox_year.setValue(int(year))
+        self.spinBox_week.setValue(int(week))
+        self.plainTextEdit_summary.setPlainText(f"{self.nris.institution.name}: ")
 
     def update_roster(self):
         """
@@ -279,7 +291,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_attendees_status(self):
         self.listWidget_attendees.clear()
-        if self.current_event.attendees:
+        if not self.current_event.attendees.all is None:
             for who in self.current_event.attendees.all:
                 self.listWidget_attendees.insertItem(0, f"{who.email} ({who.responseStatus})")
                 self.listWidget_attendees.item(0).setForeground(PyQt5.QtGui.QColor(response_colors[who.responseStatus]))
@@ -301,17 +313,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.current_event.attendees.attendee = {"email": attendee, "responseStatus": "needsAction"}
 
         self.append_local_change()
+        self.roster_clicked()
 
     def delete_attendee(self):
         try:
             email = self.listWidget_attendees.currentItem().text().split()[0]
-        except:
+        except AttributeError:
             return
 
         self.current_event.attendees.attendee = email
         del self.current_event.attendees.attendee
         self.color_roster_events()
         self.append_local_change()
+        self.roster_clicked()
 
     def update_table_headers(self):
         index = 0
