@@ -44,6 +44,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.events = list()
         self.roster_event = dict()
         self.events_modified = list()
+        self.ids_to_del = list()
         self.last_update = None
 
         self.update_table_headers()
@@ -420,10 +421,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def save_to_calendar(self):
         print(f"Pushing {len(self.events_modified)} to calendar")
 
+        # TODO commented out actualt saving to calendar for debugging/testing purposes. Uncomment later...
         for ij in self.events_modified:
-            #self.cal.update_event(body=self.roster_event[ij].body, event_id=self.roster_event[ij].id)
-            print(self.roster_event[ij].body["summary"])
+            if ij in self.roster_event.keys():
+                #self.cal.update_event(body=self.roster_event[ij].body, event_id=self.roster_event[ij].id)
+                print(self.roster_event[ij].body["summary"])
 
+        for id in self.ids_to_del:
+            #self.cal.delete_event(id)
+            print(f"deleting event {id}")
+
+        self.ids_to_del.clear()
         self.events_modified.clear()
         self.update_roster()
 
@@ -435,7 +443,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         When multiple attendees, color event in roster table based on worst attendee.
         """
         txt_color = colors["green"]
-        if event.attendees:
+
+        if event.attendees and not event.attendees.all is None:
             for attendee in event.attendees.all:
                 if attendee.responseStatus != "accepted":
                     txt_color = response_colors[attendee.responseStatus]
@@ -514,28 +523,30 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def delete_event(self):
         try:
-            print(f"This will delete id {self.current_event.id}")
+            self.current_event.id
         except AttributeError:
             return
 
-        print("THIS IS NOT DOING ANYTHING SCARY.... yet")
-        ids = list()
+        self.ids_to_del = list()
+        events_ij = list()
+
         for ij in self.selected_cells:
             if ij in self.roster_event.keys():
-                ids.append(self.roster_event[ij].id)
-        if len(ids) == 0:
-            print("Nothing to delete here. Moving on!")
+                events_ij.append(ij)
+
+        if len(events_ij) == 0:
             return
 
-        cont = QMessageBox.question(self, 'MessageBox', f"You are about to delete {len(ids)} shift(s) permanently from the"
-                                                        f" calender! Are you sure?",
-                                    QMessageBox.Yes | QMessageBox.No )
+        cont = QMessageBox.question(self, 'MessageBox', f"Delete {len(events_ij)} shift(s) from calender?",
+                                    QMessageBox.Yes | QMessageBox.No)
         if cont == QMessageBox.Yes:
-            print("Things just got scary - deleting stuff from Google calendar...")
-            for id in ids:
-                self.cal.delete_event(id)
+            for ij in events_ij:
+                self.events_modified.append(ij)
+                self.ids_to_del.append(self.roster_event[ij].id)
+                del self.events[self.events.index(self.roster_event[ij])]
+                del self.roster_event[ij]
 
-        self.get_calendar_roster_events()
+        #self.get_calendar_roster_events()
         self.update_roster()
 
     ######STAFF######
