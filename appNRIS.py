@@ -70,6 +70,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_set_summary.clicked.connect(self.set_summary_text)
         self.button_swap_shifts.clicked.connect(self.swap_shifts)
         self.button_reminer.clicked.connect(self.remind_event)
+        #self.button_new_roster.connect(self.new_roster_window)
         ###### STAFF
         self.button_new_employee.clicked.connect(self.new_employee)
         self.button_staff_delete.clicked.connect(self.remove_employee)
@@ -645,6 +646,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         print("Time to save stuff and say Goodbye")
         save_data = [self.nris, self.settings, self.cal]
         self.save_objects(obj=save_data, filename=appstuff)
+
+    def new_roster_window(self):
+        pass
 
 
 def main():
