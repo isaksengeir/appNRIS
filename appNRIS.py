@@ -291,6 +291,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def update_attendees_status(self):
         self.listWidget_attendees.clear()
+        if self.current_event.attendees is None:
+            return
+
         if not self.current_event.attendees.all is None:
             for who in self.current_event.attendees.all:
                 self.listWidget_attendees.insertItem(0, f"{who.email} ({who.responseStatus})")
