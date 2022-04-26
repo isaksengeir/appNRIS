@@ -1,147 +1,265 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>RosterWindow</class>
+ <widget class="QMainWindow" name="RosterWindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>677</width>
-    <height>500</height>
+    <width>633</width>
+    <height>531</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>MainWindow</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <layout class="QGridLayout" name="gridLayout_4">
-     <item row="0" column="0">
-      <layout class="QGridLayout" name="gridLayout_3">
-       <item row="1" column="0">
-        <layout class="QGridLayout" name="gridLayout_2">
-         <item row="0" column="1">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Year</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Week</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>From</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QSpinBox" name="year1">
-           <property name="minimum">
-            <number>2022</number>
-           </property>
-           <property name="maximum">
-            <number>9999</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QSpinBox" name="week1">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>53</number>
-           </property>
-           <property name="value">
-            <number>1</number>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>To</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QSpinBox" name="year2">
-           <property name="minimum">
-            <number>2022</number>
-           </property>
-           <property name="maximum">
-            <number>9999</number>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QSpinBox" name="week2">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>53</number>
-           </property>
-           <property name="value">
-            <number>52</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="2" column="0">
-        <widget class="QCheckBox" name="checkBox">
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QGridLayout" name="gridLayout_8">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_9">
+        <item row="0" column="0">
+         <widget class="QComboBox" name="comboBox_institution_2"/>
+        </item>
+        <item row="0" column="1" rowspan="3">
+         <widget class="QListWidget" name="staff_list_2">
+          <property name="dragEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="dragDropMode">
+           <enum>QAbstractItemView::InternalMove</enum>
+          </property>
+          <property name="defaultDropAction">
+           <enum>Qt::MoveAction</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="0" column="0">
+           <layout class="QGridLayout" name="gridLayout_11">
+            <item row="0" column="1">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Year</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Week</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>From</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="year1_2">
+              <property name="minimum">
+               <number>2022</number>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="2">
+             <widget class="QSpinBox" name="week1_2">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>53</number>
+              </property>
+              <property name="value">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>To</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QSpinBox" name="week2_2">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>53</number>
+              </property>
+              <property name="value">
+               <number>52</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="year2_2">
+              <property name="minimum">
+               <number>2022</number>
+              </property>
+              <property name="maximum">
+               <number>9999</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <layout class="QGridLayout" name="gridLayout_12">
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>First</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QSpinBox" name="first_ukevakt_3">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>53</number>
+              </property>
+              <property name="value">
+               <number>1</number>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Every</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="first_ukevakt_4">
+              <property name="minimum">
+               <number>1</number>
+              </property>
+              <property name="maximum">
+               <number>53</number>
+              </property>
+              <property name="value">
+               <number>4</number>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <widget class="QLabel" name="label_14">
+              <property name="text">
+               <string>Ukevakt</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="0">
+         <layout class="QGridLayout" name="gridLayout_13">
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="checkBox_rondomOrder">
+            <property name="text">
+             <string>Random order </string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="button_generate_roster">
+            <property name="text">
+             <string>Generate roster</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QTableWidget" name="tableWidget_roster_2">
+        <attribute name="horizontalHeaderCascadingSectionResizes">
+         <bool>false</bool>
+        </attribute>
+        <column>
          <property name="text">
-          <string>Random order </string>
+          <string>Week</string>
          </property>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QComboBox" name="comboBox_institution"/>
-       </item>
-      </layout>
-     </item>
-     <item row="0" column="1">
-      <widget class="QListWidget" name="listWidget"/>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QTableWidget" name="tableWidget"/>
-   </item>
-   <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="0">
-      <widget class="QPushButton" name="pushButton_3">
-       <property name="text">
-        <string>Save file ...</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="pushButton_2">
-       <property name="text">
-        <string>Push to calendar</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="pushButton">
-       <property name="text">
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-  </layout>
+        </column>
+        <column>
+         <property name="text">
+          <string>From</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>To</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Who</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Ukevakt</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Email</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <layout class="QGridLayout" name="gridLayout_14">
+        <item row="0" column="0">
+         <widget class="QPushButton" name="button_save_to_file">
+          <property name="text">
+           <string>Save file ...</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="button_push_calemdar">
+          <property name="text">
+           <string>Push to calendar</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="button_cancel">
+          <property name="text">
+           <string>Cancel</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections/>

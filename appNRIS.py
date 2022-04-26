@@ -2,6 +2,7 @@ import PyQt5.QtGui
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QMessageBox
 from UI.MainWindow import Ui_MainWindow
+from src.RosterGenerator import RosterWindow
 from src.Organisation import Organisation
 from src.Settings import Settings
 from src.static_methods import week_to_date
@@ -70,7 +71,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_set_summary.clicked.connect(self.set_summary_text)
         self.button_swap_shifts.clicked.connect(self.swap_shifts)
         self.button_reminer.clicked.connect(self.remind_event)
-        #self.button_new_roster.connect(self.new_roster_window)
+        self.button_new_roster.clicked.connect(self.new_roster_window)
         ###### STAFF
         self.button_new_employee.clicked.connect(self.new_employee)
         self.button_staff_delete.clicked.connect(self.remove_employee)
@@ -207,7 +208,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.spinBox_week.setValue(int(self.current_event.start_week))
 
         self.update_attendees_status()
-
 
     def default_shift(self):
         try:
@@ -496,7 +496,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.tableRoster.item(i, j).setText(self.current_event.summary_names_ukevakt)
         self.append_local_change()
 
-
     def set_summary_text(self):
 
         if not self.current_event:
@@ -648,7 +647,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.save_objects(obj=save_data, filename=appstuff)
 
     def new_roster_window(self):
-        pass
+        new_roster = RosterWindow(self)
+        new_roster.show()
 
 
 def main():
