@@ -108,20 +108,22 @@ class Attendees:
 
     @attendee.setter
     def attendee(self, value):
-        if value not in self.all:
-            if isinstance(value, dict):
-                if "email" in value.keys():
-                    self._all.append(Attendee(attendee=value))
-            elif isinstance(value, Attendee):
-                self._all.append(value)
-            else:
-                return
-            self._attendee = self._all[-1]
+        if isinstance(value, str) and "@" in value:
+            self.set_current_attendee(value)
+            return
+
         elif value in self._all:
             self._attendee = value
             return
-        elif isinstance(value, str) and "@" in value:
-            self.set_current_attendee(value)
+
+        if isinstance(value, dict):
+            if "email" in value.keys():
+                self._all.append(Attendee(attendee=value))
+        elif isinstance(value, Attendee):
+            self._all.append(value)
+        else:
+            return
+        self._attendee = self._all[-1]
 
     def set_current_attendee(self, email):
         for who in self._all:
@@ -130,6 +132,7 @@ class Attendees:
 
     @attendee.deleter
     def attendee(self):
+        print(self._attendee.email)
         del self._all[self._all.index(self._attendee)]
         try:
             self._attendee = self._all[0]

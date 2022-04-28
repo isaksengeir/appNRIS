@@ -125,7 +125,7 @@
              </widget>
             </item>
             <item row="1" column="1">
-             <widget class="QSpinBox" name="first_ukevakt_3">
+             <widget class="QSpinBox" name="first_ukevakt">
               <property name="minimum">
                <number>1</number>
               </property>
@@ -145,7 +145,7 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <widget class="QSpinBox" name="first_ukevakt_4">
+             <widget class="QSpinBox" name="ukevakt_repeat">
               <property name="minimum">
                <number>1</number>
               </property>

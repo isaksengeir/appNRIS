@@ -79,6 +79,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Time to show yourself:
         self.show()
+        self.spinBox_year.setValue(datetime.now().year)
+        self.spinBox_week.setValue(datetime.now().isocalendar()[1])
 
     def week_number_clicked(self):
         print("You clicked an entire week! jai!")
@@ -325,6 +327,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             email = self.listWidget_attendees.currentItem().text().split()[0]
         except AttributeError:
             return
+        print(email)
 
         self.current_event.attendees.attendee = email
         del self.current_event.attendees.attendee
@@ -365,7 +368,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             c += 1
         return column
 
-    def get_now_str(self):
+    @staticmethod
+    def get_now_str():
         n = datetime.now()
         return f"{n.year}-{n.month:02d}-{n.day:02d} {n.hour:02d}:{n.minute:02d}:{n.second:02d}"
 
