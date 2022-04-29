@@ -49,6 +49,16 @@ class Ui_MainWindow(object):
 "QTableWidget::item:hover {\n"
 "    border: 1px solid #F37021;\n"
 "    background-color: rgba(255, 255, 255, 0.2);\n"
+"}\n"
+"\n"
+"QListWidget::item:hover {\n"
+"    border: 1px solid #F37021;\n"
+"    background-color: rgba(255, 255, 255, 0.2);\n"
+"}\n"
+"\n"
+"QCalendarWidget::item:hover {\n"
+"    border: 1px solid #F37021;\n"
+"    background-color: rgba(255, 255, 255, 0.2);\n"
 "}")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -282,13 +292,14 @@ class Ui_MainWindow(object):
         self.calendarWidget.setObjectName("calendarWidget")
         self.verticalLayout.addWidget(self.calendarWidget)
         self.list_calendarEvents = QtWidgets.QListWidget(self.tab_3)
+        self.list_calendarEvents.setMaximumSize(QtCore.QSize(16777215, 200))
         self.list_calendarEvents.setObjectName("list_calendarEvents")
         self.verticalLayout.addWidget(self.list_calendarEvents)
         self.tabWidget.addTab(self.tab_3, "")
         self.horizontalLayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 763, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 763, 24))
         self.menubar.setObjectName("menubar")
         self.menuNRIS = QtWidgets.QMenu(self.menubar)
         self.menuNRIS.setObjectName("menuNRIS")

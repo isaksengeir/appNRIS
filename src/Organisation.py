@@ -126,6 +126,14 @@ class Institution:
         del self._staff[self._staff.index(self._employee)]
         self._employee = self._staff[-1]
 
+    def get_employee_obj(self, email):
+        print(email)
+        print([i.email for i in self._staff])
+        if email in [i.email for i in self._staff]:
+            return self._staff[[i.email for i in self._staff].index(email)]
+        print("I did not find email")
+        return None
+
     @property
     def count_staff(self):
         return len(self._staff)

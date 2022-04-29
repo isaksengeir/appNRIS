@@ -566,7 +566,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if j >= self.tableStaff.rowCount():
                     rows = self.tableStaff.rowCount()
                     self.tableStaff.insertRow(rows)
-                self.tableStaff.setItem(j, i, QtWidgets.QTableWidgetItem(str(empl.email)))
+                who = empl.name
+                if not who:
+                    who = empl.email.split("@")[0]
+                self.tableStaff.setItem(j, i, QtWidgets.QTableWidgetItem(who))
 
     def staff_clicked(self):
         self.clear_staff_widgets()

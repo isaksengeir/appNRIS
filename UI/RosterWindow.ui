@@ -24,6 +24,11 @@
         </item>
         <item row="0" column="1" rowspan="3">
          <widget class="QListWidget" name="staff_list_2">
+          <property name="font">
+           <font>
+            <family>Courier</family>
+           </font>
+          </property>
           <property name="dragEnabled">
            <bool>true</bool>
           </property>
