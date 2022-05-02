@@ -62,7 +62,7 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
             self.ui.staff_list_2.insertItem(0, f"{name}, {self.staff_details(staff)}")
 
     def get_staff(self):
-        staff = [self.app.nris.institution.staff]
+        return [self.app.nris.institution.staff]
 
     def make_roster(self):
         self.ui.tableWidget_roster_2.setRowCount(0)
@@ -92,18 +92,25 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         year = int(y1)
         i = 0
         row = 0
-        ukevakt = self.ukevakt_year
-        print(ukevakt)
+        ukevakt_year = self.ukevakt_year
+
         while True:
 
-            print(week)
-
-            who = staff[i]
-            print(who.name)
+            _from, _to = None, None
+            name = staff[i].name
+            if not name:
+                name = staff[i].email.split("@")[0]
+            email = staff[i].email
+            ukevakt = ""
+            if week in ukevakt_year:
+                ukevakt = "X"
 
             self.ui.tableWidget_roster_2.insertRow(row)
             self.ui.tableWidget_roster_2.setItem(row, 0, QtWidgets.QTableWidgetItem(str(week)))
-            self.ui.tableWidget_roster_2.setItem(row, 3, QtWidgets.QTableWidgetItem(who.name))
+            self.ui.tableWidget_roster_2.setItem(row, 3, QtWidgets.QTableWidgetItem(name))
+            self.ui.tableWidget_roster_2.setItem(row, 4, QtWidgets.QTableWidgetItem(ukevakt))
+            self.ui.tableWidget_roster_2.setItem(row, 5, QtWidgets.QTableWidgetItem(email))
+
 
 
             # Check if we are done:
