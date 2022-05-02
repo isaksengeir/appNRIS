@@ -566,9 +566,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 if j >= self.tableStaff.rowCount():
                     rows = self.tableStaff.rowCount()
                     self.tableStaff.insertRow(rows)
-                who = empl.name
-                if not who:
-                    who = empl.email.split("@")[0]
+                who = empl.email
+                # TODO it is nicer to display name, but need some rewrting since everything is looking for email now...
+                #if not who:
+                #    who = empl.email.split("@")[0]
                 self.tableStaff.setItem(j, i, QtWidgets.QTableWidgetItem(who))
 
     def staff_clicked(self):

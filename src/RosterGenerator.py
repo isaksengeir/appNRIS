@@ -48,7 +48,7 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         except AttributeError:
             return
         if inst in ukevakt_order.keys():
-            self.ui.first_ukevakt.setValue(ukevakt_order[inst])
+            self.ui.first_ukevakt_3.setValue(ukevakt_order[inst])
 
         self.app.nris.institution = inst
         self.ui.staff_list_2.clear()
@@ -65,11 +65,13 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         staff = [self.app.nris.institution.staff]
 
     def make_roster(self):
+        self.ui.tableWidget_roster_2.setRowCount(0)
+
         year1 = self.ui.year1_2.text()
         w1 = self.ui.week1_2.text()
-
         year2 = self.ui.year2_2.text()
         w2 = self.ui.week2_2.text()
+
         staff = list()
         for i in range(self.ui.staff_list_2.count()):
             email = self.ui.staff_list_2.item(i).text().split(",")[1].strip()
@@ -83,7 +85,48 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         print([x.name for x in staff])
 
         # NOW IT IS TIME TO FILL UP THE ROSTER for year1, w1 to year2, w2 :
+        self.populate_roster(staff=staff, w1=w1, w2=w2, y1=year1, y2=year2)
+
+    def populate_roster(self, staff, y1, w1, y2, w2):
+        week = int(w1)
+        year = int(y1)
+        i = 0
+        row = 0
+        ukevakt = self.ukevakt_year
+        print(ukevakt)
+        while True:
+
+            print(week)
+
+            who = staff[i]
+            print(who.name)
+
+            self.ui.tableWidget_roster_2.insertRow(row)
+            self.ui.tableWidget_roster_2.setItem(row, 0, QtWidgets.QTableWidgetItem(str(week)))
+            self.ui.tableWidget_roster_2.setItem(row, 3, QtWidgets.QTableWidgetItem(who.name))
 
 
+            # Check if we are done:
+            if week == int(w2) and year == int(y2):
+                break
+
+            # Go to next week
+            week += 1
+            row += 1
+            if week > 52:
+                week = 1
+                year += 1
+            if i < (len(staff) - 2):
+                i += 1
+            else:
+                i = 0
+
+        print("Done populating roster")
 
 
+    @property
+    def ukevakt_year(self):
+        w1 = int(self.ui.first_ukevakt_3.text())
+        frq = int(self.ui.first_ukevakt_4.text())
+
+        return [x for x in list(range(w1, 52, frq)) if x >= w1]
