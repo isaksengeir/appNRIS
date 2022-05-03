@@ -66,6 +66,15 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
 
     def make_roster(self):
         self.ui.tableWidget_roster_2.setRowCount(0)
+        try:
+            inst = self.ui.comboBox_institution_2.currentText()
+        except AttributeError:
+            return
+        # Set the correct institution to host the roster:
+        self.app.nris.institution = inst
+
+        # Clear scounters
+        self.app.nris.institution.clear_counters()
 
         year1 = self.ui.year1_2.text()
         w1 = self.ui.week1_2.text()
@@ -90,17 +99,21 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
     def populate_roster(self, staff, y1, w1, y2, w2):
         week = int(w1)
         year = int(y1)
-        i = 0
         row = 0
         ukevakt_year = self.ukevakt_year
 
         while True:
 
             _from, _to = None, None
-            name = staff[i].name
+            employee = self.app.nris.institution.new_shift(ukevakt=week in ukevakt_year, staff_list=staff)
+            if employee is None:
+                print("I GOT A NONETYPE EMPLOYEE")
+                break
+
+            name = employee.name
             if not name:
-                name = staff[i].email.split("@")[0]
-            email = staff[i].email
+                name = employee.email.split("@")[0]
+            email = employee.email
             ukevakt = ""
             if week in ukevakt_year:
                 ukevakt = "X"
@@ -110,7 +123,6 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
             self.ui.tableWidget_roster_2.setItem(row, 3, QtWidgets.QTableWidgetItem(name))
             self.ui.tableWidget_roster_2.setItem(row, 4, QtWidgets.QTableWidgetItem(ukevakt))
             self.ui.tableWidget_roster_2.setItem(row, 5, QtWidgets.QTableWidgetItem(email))
-
 
 
             # Check if we are done:
@@ -123,10 +135,6 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
             if week > 52:
                 week = 1
                 year += 1
-            if i < (len(staff) - 2):
-                i += 1
-            else:
-                i = 0
 
         print("Done populating roster")
 

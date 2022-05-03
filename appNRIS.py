@@ -263,8 +263,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         emails = list()
         emails.append("")
         self.comboBox_new_attendee.clear()
-        for employee in self.nris.institution.staff:
-            emails.append(employee.email)
+        try:
+            for employee in self.nris.institution.staff:
+                emails.append(employee.email)
+        except AttributeError:
+            return
         if len(emails) > 0:
             self.comboBox_new_attendee.addItems(emails)
 

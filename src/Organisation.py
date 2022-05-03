@@ -1,3 +1,4 @@
+import datetime
 
 
 class Employee:
@@ -15,9 +16,33 @@ class Employee:
         self._shared_shifts = False
         self._vacancy_rate = 1.00
 
+        # Keep track of history
+        self._shifts_taken = 0
+        self._ukevakt_taken = 0
+        self._last_shift = None
+
         if content:
             for k, v in content.items():
                 setattr(self, k, v)
+
+    @property
+    def shifts_taken(self):
+        return self._shifts_taken
+
+    @property
+    def ukevakt_taken(self):
+        return self._ukevakt_taken
+
+    def new_shift(self):
+        self._shifts_taken += 1
+
+    def new_ukevakt(self):
+        self._ukevakt_taken += 1
+        self._shifts_taken += 1
+
+    def clear_counters(self):
+        self._ukevakt_taken = 0
+        self._shifts_taken = 0
 
     @property
     def name(self):
@@ -102,6 +127,9 @@ class Institution:
         self._name = name
         self._leader = leader
         self._employee = None
+        self._shifts = 0
+        self._shift_rounds = 0
+        self._ukevakt = 0
 
         if isinstance(staff, list):
             self.create_staff(staff_list=staff)
@@ -136,11 +164,34 @@ class Institution:
 
     @property
     def count_staff(self):
-        return len(self._staff)
+        return len(self.staff)
+
+    @property
+    def count_staff_available(self):
+        count = float()
+        for employee in self.staff_available:
+            count += employee.vacancy_rate
+        return count
+
+    @property
+    def count_ukevakt_available(self):
+        count = float()
+        for employee in self.staff_available:
+            if employee.ukevakt:
+                count += employee.vacancy_rate
+        return count
 
     @property
     def staff(self):
         return self._staff
+
+    @property
+    def staff_available(self):
+        avail = list()
+        for employee in self.staff:
+            if employee.vacancy_rate > 0:
+                avail.append(employee)
+        return avail
 
     @property
     def staff_names(self):
@@ -179,6 +230,52 @@ class Institution:
             self._employee = self._staff[-1]
         else:
             self._employee = None
+
+    @property
+    def shifts(self):
+        return self._shifts
+
+    @property
+    def ukevakt(self):
+        return self._ukevakt
+
+    def new_shift(self, ukevakt=False, staff_list=None):
+        self._shifts += 1
+        if ukevakt:
+            self._ukevakt += 1
+        if not staff_list:
+            staff_list = self.staff_available
+
+        # if ukevakt, remove from list those that do not take ukevakt:
+        if ukevakt:
+            for i in range(len(staff_list)):
+                if not staff_list[i].ukevakt:
+                    staff_list.pop(i)
+
+        for employee in staff_list:
+            if self.shift_frequency(employee) <= employee.vacancy_rate:
+                if ukevakt:
+                    if self.ukevakt_frequency(employee) <= employee.vacancy_rate:
+                        self.employee = employee
+                        self.employee.new_ukevakt()
+                        return self.employee
+                else:
+                    self.employee = employee
+                    self.employee.new_shift()
+                    return self.employee
+        print("Could not find anyone for this shift")
+
+    def shift_frequency(self, employee):
+        return employee.shifts_taken * (self.count_staff_available / self.shifts)
+
+    def ukevakt_frequency(self, employee):
+        return employee.ukevakt_taken * (self.count_ukevakt_available / self.ukevakt)
+
+    def clear_counters(self):
+        self._shifts = 0
+        self._ukevakt = 0
+        for employee in self.staff:
+            employee.clear_counters()
 
 
 class Organisation:
