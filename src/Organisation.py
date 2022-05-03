@@ -248,7 +248,7 @@ class Institution:
 
         # if ukevakt, remove from list those that do not take ukevakt:
         if ukevakt:
-            for i in range(len(staff_list)):
+            for i in range(len(staff_list)-1, -1, -1):
                 if not staff_list[i].ukevakt:
                     staff_list.pop(i)
 

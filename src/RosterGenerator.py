@@ -1,9 +1,10 @@
 from UI.RosterWindow import Ui_RosterWindow
 from PyQt5 import QtWidgets
-from datetime import datetime
+from datetime import datetime, timedelta
 import random
 
 ukevakt_order = {"UiT": 1, "NTNU": 2, "UiB": 3, "UiO": 4}
+
 
 class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
     def __init__(self, parent):
@@ -91,8 +92,6 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         if self.ui.checkBox_rondomOrder.isChecked():
             staff = random.sample(staff, len(staff))
 
-        print([x.name for x in staff])
-
         # NOW IT IS TIME TO FILL UP THE ROSTER for year1, w1 to year2, w2 :
         self.populate_roster(staff=staff, w1=w1, w2=w2, y1=year1, y2=year2)
 
@@ -103,8 +102,7 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         ukevakt_year = self.ukevakt_year
 
         while True:
-
-            _from, _to = None, None
+            _from, _to = self.week_to_date(year, week)
             employee = self.app.nris.institution.new_shift(ukevakt=week in ukevakt_year, staff_list=staff)
             if employee is None:
                 print("I GOT A NONETYPE EMPLOYEE")
@@ -120,6 +118,8 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
 
             self.ui.tableWidget_roster_2.insertRow(row)
             self.ui.tableWidget_roster_2.setItem(row, 0, QtWidgets.QTableWidgetItem(str(week)))
+            self.ui.tableWidget_roster_2.setItem(row, 1, QtWidgets.QTableWidgetItem(str(_from)))
+            self.ui.tableWidget_roster_2.setItem(row, 2, QtWidgets.QTableWidgetItem(str(_to)))
             self.ui.tableWidget_roster_2.setItem(row, 3, QtWidgets.QTableWidgetItem(name))
             self.ui.tableWidget_roster_2.setItem(row, 4, QtWidgets.QTableWidgetItem(ukevakt))
             self.ui.tableWidget_roster_2.setItem(row, 5, QtWidgets.QTableWidgetItem(email))
@@ -145,3 +145,15 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         frq = int(self.ui.first_ukevakt_4.text())
 
         return [x for x in list(range(w1, 52, frq)) if x >= w1]
+
+    @staticmethod
+    def week_to_date(year, week):
+        """
+        converts week number for a given year to date (year-month-day)
+        :param year: int
+        :param week: int
+        :return: first date, last date of week (year-month-day)
+        """
+        firstdayofweek = datetime.strptime(f'{year}-W{int(week)}-1', "%Y-W%W-%w").date()
+        lastdayofweek = firstdayofweek + timedelta(days=4.9)
+        return firstdayofweek, lastdayofweek
