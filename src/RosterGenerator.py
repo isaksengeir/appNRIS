@@ -19,9 +19,9 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
 
         # START
         self.fill_institution_list()
-        self.ui.year1_2.setValue(datetime.now().year)
-        self.ui.week1_2.setValue(datetime.now().isocalendar()[1])
-        self.ui.year2_2.setValue(datetime.now().year)
+        self.ui.year1.setValue(datetime.now().year)
+        self.ui.week1.setValue(datetime.now().isocalendar()[1])
+        self.ui.year2.setValue(datetime.now().year)
 
         # CONNECT STUFF
         self.ui.button_cancel.clicked.connect(self.close)
@@ -29,6 +29,9 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         self.ui.button_generate_roster.clicked.connect(self.make_roster)
 
         self.fill_staff_list()
+
+        # Scalable table
+        self.ui.tableWidget_roster_2.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeMode(1))
 
     def fill_institution_list(self):
         inst_names = [inst.name for inst in self.app.nris.institutions]
@@ -49,10 +52,10 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         except AttributeError:
             return
         if inst in ukevakt_order.keys():
-            self.ui.first_ukevakt_3.setValue(ukevakt_order[inst])
+            self.ui.first_ukevakt.setValue(ukevakt_order[inst])
 
         self.app.nris.institution = inst
-        self.ui.staff_list_2.clear()
+        self.ui.staff_list.clear()
 
         for staff in self.app.nris.institution.staff:
             name = staff.name
@@ -60,7 +63,7 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
             if not staff.name or len(staff.name) < 1:
                 name = staff.email.split("@")[0]
 
-            self.ui.staff_list_2.insertItem(0, f"{name}, {self.staff_details(staff)}")
+            self.ui.staff_list.insertItem(0, f"{name}, {self.staff_details(staff)}")
 
     def get_staff(self):
         return [self.app.nris.institution.staff]
@@ -77,16 +80,17 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         # Clear scounters
         self.app.nris.institution.clear_counters()
 
-        year1 = self.ui.year1_2.text()
-        w1 = self.ui.week1_2.text()
-        year2 = self.ui.year2_2.text()
-        w2 = self.ui.week2_2.text()
+        year1 = self.ui.year1.text()
+        w1 = self.ui.week1.text()
+        year2 = self.ui.year2.text()
+        w2 = self.ui.week2.text()
 
         staff = list()
-        for i in range(self.ui.staff_list_2.count()):
-            email = self.ui.staff_list_2.item(i).text().split(",")[1].strip()
-            if self.app.nris.institution.get_employee_obj(email=email).vacancy_rate > 0:
-                staff.append(self.app.nris.institution.get_employee_obj(email=email))
+        for i in range(self.ui.staff_list.count()):
+            email = self.ui.staff_list.item(i).text().split(",")[1].strip()
+            employee = self.app.nris.institution.get_employee_obj(email=email)
+            if employee.vacancy_rate > 0.001:
+                staff.append(employee)
 
         # Random order of shifts ?
         if self.ui.checkBox_rondomOrder.isChecked():
@@ -103,6 +107,7 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
 
         while True:
             _from, _to = self.week_to_date(year, week)
+            print(week)
             employee = self.app.nris.institution.new_shift(ukevakt=week in ukevakt_year, staff_list=staff)
             if employee is None:
                 print("I GOT A NONETYPE EMPLOYEE")
@@ -124,7 +129,6 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
             self.ui.tableWidget_roster_2.setItem(row, 4, QtWidgets.QTableWidgetItem(ukevakt))
             self.ui.tableWidget_roster_2.setItem(row, 5, QtWidgets.QTableWidgetItem(email))
 
-
             # Check if we are done:
             if week == int(w2) and year == int(y2):
                 break
@@ -136,13 +140,42 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
                 week = 1
                 year += 1
 
-        print("Done populating roster")
+        self.roster_stats(staff=staff)
 
+    def roster_stats(self, staff):
+        self.ui.tableWidget_stats.clearContents()
+        self.ui.tableWidget_stats.setRowCount(0)
+
+        row = 0
+        tot_shifts = self.app.nris.institution.shifts
+        tot_ukevakt = self.app.nris.institution.ukevakt
+        for employee in staff:
+            name = employee.name
+            if not name:
+                name = employee.email.split("@")[0]
+
+            shifts_taken = employee.shifts_taken
+            shifts_p = 100 * shifts_taken / tot_shifts
+            shifts_rel = 100 * self.app.nris.institution.shift_frequency(employee)
+            ukevakt_taken = employee.ukevakt_taken
+            ukevakt_p = 100 * ukevakt_taken / tot_ukevakt
+            ukevakt_rel = 100 * self.app.nris.institution.ukevakt_frequency(employee)
+
+            self.ui.tableWidget_stats.insertRow(row)
+            self.ui.tableWidget_stats.setItem(row, 0, QtWidgets.QTableWidgetItem(name))
+            self.ui.tableWidget_stats.setItem(row, 1, QtWidgets.QTableWidgetItem(str(shifts_taken)))
+            self.ui.tableWidget_stats.setItem(row, 2, QtWidgets.QTableWidgetItem(f"{shifts_p:.2f}"))
+            self.ui.tableWidget_stats.setItem(row, 3, QtWidgets.QTableWidgetItem(f"{shifts_rel:.2f}"))
+            self.ui.tableWidget_stats.setItem(row, 4, QtWidgets.QTableWidgetItem(str(ukevakt_taken)))
+            self.ui.tableWidget_stats.setItem(row, 5, QtWidgets.QTableWidgetItem(f"{ukevakt_p:.2f}"))
+            self.ui.tableWidget_stats.setItem(row, 6, QtWidgets.QTableWidgetItem(f"{ukevakt_rel:.2f}"))
+
+            row += 1
 
     @property
     def ukevakt_year(self):
-        w1 = int(self.ui.first_ukevakt_3.text())
-        frq = int(self.ui.first_ukevakt_4.text())
+        w1 = int(self.ui.first_ukevakt.text())
+        frq = int(self.ui.ukevakt_repeat.text())
 
         return [x for x in list(range(w1, 52, frq)) if x >= w1]
 

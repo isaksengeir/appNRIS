@@ -155,11 +155,8 @@ class Institution:
         self._employee = self._staff[-1]
 
     def get_employee_obj(self, email):
-        print(email)
-        print([i.email for i in self._staff])
         if email in [i.email for i in self._staff]:
             return self._staff[[i.email for i in self._staff].index(email)]
-        print("I did not find email")
         return None
 
     @property
@@ -246,29 +243,32 @@ class Institution:
         if not staff_list:
             staff_list = self.staff_available
 
-        # if ukevakt, remove from list those that do not take ukevakt:
-        if ukevakt:
-            for i in range(len(staff_list)-1, -1, -1):
-                if not staff_list[i].ukevakt:
-                    staff_list.pop(i)
-
         for employee in staff_list:
-            if self.shift_frequency(employee) <= employee.vacancy_rate:
-                if ukevakt:
-                    if self.ukevakt_frequency(employee) <= employee.vacancy_rate:
-                        self.employee = employee
-                        self.employee.new_ukevakt()
-                        return self.employee
-                else:
+            if ukevakt:
+                if employee.ukevakt and self.ukevakt_frequency(employee) < employee.vacancy_rate:
+                    self.employee = employee
+                    self.employee.new_ukevakt()
+                    return self.employee
+
+            else:
+                if self.shift_frequency(employee) < employee.vacancy_rate:
                     self.employee = employee
                     self.employee.new_shift()
                     return self.employee
-        print("Could not find anyone for this shift")
+
+        print("Could not find anyone for this shift - looking again ...")
+        # Sometimes, we need to add a new shift to lower the load/frequency:
+        who = self.new_shift(ukevakt=ukevakt, staff_list=staff_list)
+        return who
 
     def shift_frequency(self, employee):
+        if self.shifts == 0:
+            return 0
         return employee.shifts_taken * (self.count_staff_available / self.shifts)
 
     def ukevakt_frequency(self, employee):
+        if self.ukevakt == 0:
+            return 0
         return employee.ukevakt_taken * (self.count_ukevakt_available / self.ukevakt)
 
     def clear_counters(self):
