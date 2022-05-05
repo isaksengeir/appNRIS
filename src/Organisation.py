@@ -38,7 +38,7 @@ class Employee:
 
     def new_ukevakt(self):
         self._ukevakt_taken += 1
-        self._shifts_taken += 1
+        #self._shifts_taken += 1
 
     def clear_counters(self):
         self._ukevakt_taken = 0
@@ -237,38 +237,51 @@ class Institution:
         return self._ukevakt
 
     def new_shift(self, ukevakt=False, staff_list=None):
+        min_frq = 9999.99
+        who = None
+
         self._shifts += 1
         if ukevakt:
             self._ukevakt += 1
+
         if not staff_list:
             staff_list = self.staff_available
 
         for employee in staff_list:
-            if ukevakt:
-                if employee.ukevakt and self.ukevakt_frequency(employee) < employee.vacancy_rate:
-                    self.employee = employee
-                    self.employee.new_ukevakt()
-                    return self.employee
+            if self.shift_frequency(employee) <= employee.vacancy_rate:
+                if ukevakt and not employee.ukevakt:
+                    pass
+                else:
+                    if ukevakt:
+                        if self.ukevakt_frequency(employee) < min_frq:
+                            who = employee
+                            min_frq = self.ukevakt_frequency(employee)
+                    else:
+                        if self.shift_frequency(employee) < min_frq:
+                            who = employee
+                            min_frq = self.shift_frequency(employee)
+        # Demanding employee (not taking ukevakt and vacancy rates other than 1.0 etc) sometimes cause problems:
+        while not who:
+            who = self.new_shift(ukevakt=ukevakt, staff_list=staff_list)
 
-            else:
-                if self.shift_frequency(employee) < employee.vacancy_rate:
-                    self.employee = employee
-                    self.employee.new_shift()
-                    return self.employee
+        who.new_shift()
+        if ukevakt:
+            who.new_ukevakt()
 
-        print("Could not find anyone for this shift - looking again ...")
-        # Sometimes, we need to add a new shift to lower the load/frequency:
-        who = self.new_shift(ukevakt=ukevakt, staff_list=staff_list)
         return who
 
     def shift_frequency(self, employee):
         if self.shifts == 0:
             return 0
+        if self.shifts > 2:
+            return employee.shifts_taken * (self.count_staff_available / (self.shifts - 1))
         return employee.shifts_taken * (self.count_staff_available / self.shifts)
 
     def ukevakt_frequency(self, employee):
         if self.ukevakt == 0:
             return 0
+        if self.ukevakt > 2:
+            return employee.ukevakt_taken * (self.count_ukevakt_available / (self.ukevakt - 1))
         return employee.ukevakt_taken * (self.count_ukevakt_available / self.ukevakt)
 
     def clear_counters(self):

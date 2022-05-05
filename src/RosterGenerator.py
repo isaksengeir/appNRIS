@@ -108,7 +108,9 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         while True:
             _from, _to = self.week_to_date(year, week)
             print(week)
+
             employee = self.app.nris.institution.new_shift(ukevakt=week in ukevakt_year, staff_list=staff)
+
             if employee is None:
                 print("I GOT A NONETYPE EMPLOYEE")
                 break
