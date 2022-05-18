@@ -1,7 +1,9 @@
 from UI.RosterWindow import Ui_RosterWindow
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from datetime import datetime, timedelta
 import random
+import csv
+
 
 ukevakt_order = {"UiT": 1, "NTNU": 2, "UiB": 3, "UiO": 4}
 
@@ -27,6 +29,7 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         self.ui.button_cancel.clicked.connect(self.close)
         self.ui.comboBox_institution_2.currentTextChanged.connect(self.fill_staff_list)
         self.ui.button_generate_roster.clicked.connect(self.make_roster)
+        self.ui.button_save_to_file.clicked.connect(self.save_to_file)
 
         self.fill_staff_list()
 
@@ -53,6 +56,9 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
             return
         if inst in ukevakt_order.keys():
             self.ui.first_ukevakt.setValue(ukevakt_order[inst])
+
+        self.ui.tableWidget_stats.setRowCount(0)
+        self.ui.tableWidget_roster_2.setRowCount(0)
 
         self.app.nris.institution = inst
         self.ui.staff_list.clear()
@@ -192,3 +198,21 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         firstdayofweek = datetime.strptime(f'{year}-W{int(week)}-1', "%Y-W%W-%w").date()
         lastdayofweek = firstdayofweek + timedelta(days=4.9)
         return firstdayofweek, lastdayofweek
+
+    def save_to_file(self):
+        path = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', '', 'CSV(*.csv)')[0]
+
+        if path:
+            with open(path, 'w') as stream:
+                writer = csv.writer(stream)
+                rowdata = ["#Week", "#From", "#To", "#Who", "#ukevakt", "#email"]
+                writer.writerow(rowdata)
+                for row in range(self.ui.tableWidget_roster_2.rowCount()):
+                    rowdata.clear()
+                    for column in range(self.ui.tableWidget_roster_2.columnCount()):
+                        item = self.ui.tableWidget_roster_2.item(row, column)
+                        if item is not None:
+                            rowdata.append(item.text())
+                        else:
+                            rowdata.append('')
+                    writer.writerow(rowdata)
