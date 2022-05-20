@@ -113,8 +113,6 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
 
         while True:
             _from, _to = self.week_to_date(year, week)
-            print(week)
-
             employee = self.app.nris.institution.new_shift(ukevakt=week in ukevakt_year, staff_list=staff)
 
             if employee is None:
@@ -203,9 +201,10 @@ class RosterWindow(QtWidgets.QMainWindow, Ui_RosterWindow):
         path = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', '', 'CSV(*.csv)')[0]
 
         if path:
-            with open(path, 'w') as stream:
+            with open(path, 'w', encoding='utf-8-sig') as stream:
                 writer = csv.writer(stream)
-                rowdata = ["#Week", "#From", "#To", "#Who", "#ukevakt", "#email"]
+                rowdata = ["#Week", "#From", "#To", "#Who", "#ukevakt", "#email",
+                           f"#{self.ui.comboBox_institution_2.currentText()}"]
                 writer.writerow(rowdata)
                 for row in range(self.ui.tableWidget_roster_2.rowCount()):
                     rowdata.clear()

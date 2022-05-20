@@ -76,6 +76,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.button_new_employee.clicked.connect(self.new_employee)
         self.button_staff_delete.clicked.connect(self.remove_employee)
         self.button_save_to_employee.clicked.connect(self.save_to_employee)
+        ### CALENDAR
+        self.calendarWidget.selectionChanged.connect(self.calendar_date_changed)
 
         # Time to show yourself:
         self.show()
@@ -84,6 +86,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def week_number_clicked(self):
         print("You clicked an entire week! jai!")
+
+    def calendar_date_changed(self):
+        print("HELLO")
+        # date_ = self.calendarWidget.selectedDate()
+        # print(f"{date_.weekNumber()[0]}: {date_.year()}-{date_.month()}-{date_.day()} "
+        #      f"{date_.shortDayName(date_.dayOfWeek())}")
+        date_ = self.calendarWidget.selectedDate().toPyDate()
+        print(date_)
 
     def init_nris(self):
         """
