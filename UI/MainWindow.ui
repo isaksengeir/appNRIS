@@ -58,7 +58,39 @@ QListWidget::item:hover {
 QCalendarWidget::item:hover {
 	border: 1px solid #F37021;
 	background-color: rgba(255, 255, 255, 0.2);
-}</string>
+}
+
+
+
+
+QPushButton:hover {
+	color: #F37021;
+}
+
+
+/*
+QPushButton:hover
+{
+   	background-color: rgba(255, 255, 255, 0.2);
+	border-style: outset;
+	border-width: 2px;
+	border-color: #F37021;
+
+}
+
+
+QPushButton {
+	background-color:  rgba(255, 255, 255, 0.2);
+	border: 1px solid black;
+}
+
+
+QPushButton:pressed
+{
+	color: rgb(143, 23, 119);
+	background-color: rgb(20, 20, 20);
+}
+*/</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
@@ -154,6 +186,15 @@ QTableWidget::item:hover {
            <widget class="QPushButton" name="button_delete_shift">
             <property name="text">
              <string>Delete shift</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -560,23 +601,6 @@ QTableWidget::item:hover {
      </widget>
     </item>
    </layout>
-  </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>763</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuNRIS">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionInfo"/>
-   </widget>
-   <addaction name="menuNRIS"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionInfo">

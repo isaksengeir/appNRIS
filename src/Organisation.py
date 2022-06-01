@@ -246,6 +246,7 @@ class Institution:
 
         if not staff_list:
             staff_list = self.staff_available
+            
 
         for employee in staff_list:
             if self.shift_frequency(employee) <= employee.vacancy_rate:

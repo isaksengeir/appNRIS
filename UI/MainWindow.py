@@ -59,7 +59,39 @@ class Ui_MainWindow(object):
 "QCalendarWidget::item:hover {\n"
 "    border: 1px solid #F37021;\n"
 "    background-color: rgba(255, 255, 255, 0.2);\n"
-"}")
+"}\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"QPushButton:hover {\n"
+"    color: #F37021;\n"
+"}\n"
+"\n"
+"\n"
+"/*\n"
+"QPushButton:hover\n"
+"{\n"
+"       background-color: rgba(255, 255, 255, 0.2);\n"
+"    border-style: outset;\n"
+"    border-width: 2px;\n"
+"    border-color: #F37021;\n"
+"\n"
+"}\n"
+"\n"
+"\n"
+"QPushButton {\n"
+"    background-color:  rgba(255, 255, 255, 0.2);\n"
+"    border: 1px solid black;\n"
+"}\n"
+"\n"
+"\n"
+"QPushButton:pressed\n"
+"{\n"
+"    color: rgb(143, 23, 119);\n"
+"    background-color: rgb(20, 20, 20);\n"
+"}\n"
+"*/")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.centralwidget)
@@ -116,6 +148,9 @@ class Ui_MainWindow(object):
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.gridLayout_7.addItem(spacerItem, 0, 7, 1, 1)
         self.button_delete_shift = QtWidgets.QPushButton(self.tab)
+        self.button_delete_shift.setAutoDefault(False)
+        self.button_delete_shift.setDefault(False)
+        self.button_delete_shift.setFlat(False)
         self.button_delete_shift.setObjectName("button_delete_shift")
         self.gridLayout_7.addWidget(self.button_delete_shift, 0, 8, 2, 1)
         self.label_14 = QtWidgets.QLabel(self.tab)
@@ -298,19 +333,11 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.tab_3, "")
         self.horizontalLayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 763, 24))
-        self.menubar.setObjectName("menubar")
-        self.menuNRIS = QtWidgets.QMenu(self.menubar)
-        self.menuNRIS.setObjectName("menuNRIS")
-        MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
         self.actionInfo = QtWidgets.QAction(MainWindow)
         self.actionInfo.setObjectName("actionInfo")
-        self.menuNRIS.addAction(self.actionInfo)
-        self.menubar.addAction(self.menuNRIS.menuAction())
 
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
@@ -352,6 +379,5 @@ class Ui_MainWindow(object):
         self.checkBox_does_ukevakt.setText(_translate("MainWindow", "Ukevakt"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Staff"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Calendar"))
-        self.menuNRIS.setTitle(_translate("MainWindow", "File"))
         self.actionInfo.setText(_translate("MainWindow", "Info"))
 #import icons_rc
