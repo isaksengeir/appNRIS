@@ -439,10 +439,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def save_to_calendar(self):
         print(f"Pushing {len(self.events_modified)} to calendar")
 
-        # TODO commented out actualt saving to calendar for debugging/testing purposes. Uncomment later...
+
         for ij in self.events_modified:
             if ij in self.roster_event.keys():
-                #self.cal.update_event(body=self.roster_event[ij].body, event_id=self.roster_event[ij].id)
+                # commented this out to avoid saving to calendar for debugging/testing purposes:
+                self.cal.update_event(body=self.roster_event[ij].body, event_id=self.roster_event[ij].id)
                 print(self.roster_event[ij].body["summary"])
 
         for id in self.ids_to_del:

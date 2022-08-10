@@ -100,7 +100,10 @@ class Attendees:
 
     @property
     def attendees_body(self):
-        return [attendee.body for attendee in self._all]
+        try:
+            return [attendee.body for attendee in self._all]
+        except TypeError:
+            return []
 
     @property
     def attendee(self):
