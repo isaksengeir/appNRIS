@@ -13,7 +13,7 @@ class Attendee:
         self._comment = None # The attendee's response comment.
         self._responseStatus = responseStatus
 
-        if attendee:
+        if attendee and isinstance(attendee, dict):
             for k, v in attendee.items():
                 setattr(self, k, v)
 
@@ -305,9 +305,6 @@ class RT_Event(Event):
 
     @summary.setter
     def summary(self, value):
-        print("I got this value for summary setter:")
-        print(value)
-
         if "ukevakt" in value.lower():
             self.ukevakt = True
         else:

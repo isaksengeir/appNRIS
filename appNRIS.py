@@ -328,8 +328,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not self.current_event:
             print("No events exist here... I am not sure what to do about this.... ")
         if not self.current_event.attendees:
-            self.current_event.attendees = {"email": attendee, "responseStatus": "needsAction"}
+            print("attendees")
+            self.current_event.attendees = [{"email": attendee, "responseStatus": "needsAction"}]
         else:
+            print("attendees.attendee")
             self.current_event.attendees.attendee = {"email": attendee, "responseStatus": "needsAction"}
 
         self.append_local_change()
